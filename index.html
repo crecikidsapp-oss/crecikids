@@ -2106,12 +2106,12 @@
             return email === validEmail && password === validPassword;
         }
 
-        // Función para enviar email al servidor local
+        // Función para enviar email directamente a Google Sheets
         async function sendEmailToSheets(email) {
             try {
-                console.log('🔄 Enviando email al servidor:', email);
+                console.log('🔄 Enviando email a Google Sheets:', email);
                 
-                const response = await fetch('/api/save-email', {
+                const response = await fetch('https://script.google.com/macros/s/AKfycbxjjoUYnnU4N5j5i7dswstCtho7mwoMRvxp2iUjiA3nLgHenen6ILXujNmohxzj_LMy_w/exec', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -2124,10 +2124,14 @@
                 console.log('📡 Respuesta del servidor:', response);
                 
                 const result = await response.json();
-                console.log('✅ Email enviado exitosamente:', result);
+                console.log('✅ Email enviado a Google Sheets:', result);
                 
                 // Mostrar notificación visual para pruebas
-                alert('✅ Email enviado: ' + email + '\nID: ' + (result.data?.id || 'N/A'));
+                if (result.success) {
+                    alert('✅ Email guardado en Google Sheets: ' + email);
+                } else {
+                    alert('⚠️ ' + result.message);
+                }
                 
             } catch (error) {
                 console.error('❌ Error enviando email:', error);
