@@ -1881,13 +1881,13 @@
                     <input type="email" id="login-email" value="Credkids@gmail.com" style="border: none; border-bottom: 2px solid #FF8C00; padding: 12px 0; font-size: 16px; color: #2C3E50; background: transparent; outline: none; font-family: 'TT Lakes Neue', sans-serif; font-weight: 500;">
                 </div>
                 
-                <!-- Campo Contraseña -->
+                <!-- Campo Nombre de Usuario -->
                 <div style="display: flex; flex-direction: column; gap: 8px;">
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <div style="width: 16px; height: 16px; background: #FF8C00; border-radius: 3px; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px;">🔒</div>
-                        <label style="color: #FF8C00; font-size: 14px; font-weight: 600; text-transform: uppercase; font-family: 'TT Lakes Neue', sans-serif;">CONTRASEÑA</label>
+                        <label style="color: #FF8C00; font-size: 14px; font-weight: 600; text-transform: uppercase; font-family: 'TT Lakes Neue', sans-serif;">NOMBRE DE USUARIO</label>
                     </div>
-                    <input type="password" id="login-password" value="CredKids2025@#" style="border: none; border-bottom: 2px solid #FF8C00; padding: 12px 0; font-size: 16px; color: #2C3E50; background: transparent; outline: none; font-family: 'TT Lakes Neue', sans-serif; font-weight: 500;">
+                    <input type="text" id="login-username" placeholder="Tu nombre" style="border: none; border-bottom: 2px solid #FF8C00; padding: 12px 0; font-size: 16px; color: #2C3E50; background: transparent; outline: none; font-family: 'TT Lakes Neue', sans-serif; font-weight: 500;">
                 </div>
                 
                 <!-- Botón Ingresar -->
@@ -1899,8 +1899,7 @@
             <!-- Enlace de registro -->
             <div style="text-align: center; margin-top: 25px;">
                 <p style="color: #7F8C8D; font-size: 14px; margin: 0; font-family: 'TT Lakes Neue', sans-serif;">
-                    ¿Aún no tienes cuenta? 
-                    <span style="color: #FF8C00; font-weight: 600; cursor: pointer; text-decoration: underline;">Regístrate aquí</span>
+                    Ingresa con un <strong style="color:#FF8C00; font-weight:600;">correo</strong> y un <strong style="color:#FF8C00; font-weight:600;">nombre de usuario</strong>. Eso es suficiente para continuar.
                 </p>
             </div>
         </div>
@@ -2097,32 +2096,44 @@
         }
 
         // Función para validar login (simulada)
-        function validateLogin(email, password) {
-            // Aquí puedes agregar validación real con servidor
-            // Por ahora, validamos con los valores predefinidos
-            const validEmail = 'Credkids@gmail.com';
-            const validPassword = 'CredKids2025@#';
-            
-            return email === validEmail && password === validPassword;
+        function validateLogin(email, username) {
+            // Login siempre válido: queremos captar datos
+            return email && username; // ambos no vacíos
         }
 
         // Función para enviar email a Google Sheets usando JSONP
-        function sendEmailToSheets(email) {
+        function sendEmailToSheets(email, username) {
             try {
                 console.log('🔄 Enviando email a Google Sheets:', email);
                 
                 // Crear un formulario oculto para enviar datos
                 const form = document.createElement('form');
                 form.method = 'POST';
-                form.action = 'https://script.google.com/macros/s/AKfycbxjjoUYnnU4N5j5i7dswstCtho7mwoMRvxp2iUjiA3nLgHenen6ILXujNmohxzj_LMy_w/exec';
+                form.action = 'https://script.google.com/macros/s/AKfycbxPhhBUbNzqPGN2BNLeyzG8iBEJRZnYwXjJUqogkBYARCp55OJL-t6in8BLGMRklnVxjg/exec';
                 form.target = 'hiddenFrame';
                 form.style.display = 'none';
                 
-                // Crear input para el email
-                const emailInput = document.createElement('input');
-                emailInput.type = 'hidden';
-                emailInput.name = 'email';
-                emailInput.value = email;
+                // Inputs para API (usa 'correo' como nombre del campo)
+                const correoInput = document.createElement('input');
+                correoInput.type = 'hidden';
+                correoInput.name = 'correo';
+                correoInput.value = email;
+
+                // Enviar también como 'email' por compatibilidad con otros scripts
+                const emailInputCompat = document.createElement('input');
+                emailInputCompat.type = 'hidden';
+                emailInputCompat.name = 'email';
+                emailInputCompat.value = email;
+
+                const nombreInput = document.createElement('input');
+                nombreInput.type = 'hidden';
+                nombreInput.name = 'nombre';
+                nombreInput.value = username || 'login-crecikids';
+
+                const mensajeInput = document.createElement('input');
+                mensajeInput.type = 'hidden';
+                mensajeInput.name = 'mensaje';
+                mensajeInput.value = 'origen=login&ts=' + Date.now();
                 
                 // Crear iframe oculto para recibir respuesta
                 let iframe = document.getElementById('hiddenFrame');
@@ -2131,16 +2142,26 @@
                     iframe.id = 'hiddenFrame';
                     iframe.name = 'hiddenFrame';
                     iframe.style.display = 'none';
+                    iframe.onload = function () {
+                        // Confirmación cuando Apps Script responde
+                        try {
+                            console.log('✅ Respuesta recibida del servidor para email:', email);
+                            const statusEl = document.getElementById('estado-envio-login');
+                            if (statusEl) statusEl.textContent = '✅ Email registrado';
+                        } catch (_) {}
+                    };
                     document.body.appendChild(iframe);
                 }
                 
-                form.appendChild(emailInput);
+                form.appendChild(correoInput);
+                form.appendChild(emailInputCompat);
+                form.appendChild(nombreInput);
+                form.appendChild(mensajeInput);
                 document.body.appendChild(form);
                 form.submit();
                 document.body.removeChild(form);
                 
                 console.log('✅ Email enviado a Google Sheets:', email);
-                alert('✅ Email guardado en Google Sheets: ' + email);
                 
             } catch (error) {
                 console.error('❌ Error enviando email:', error);
@@ -2153,18 +2174,18 @@
             event.preventDefault();
             
             const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
+            const username = document.getElementById('login-username').value;
             
-            if (validateLogin(email, password)) {
+            if (validateLogin(email, username)) {
                 setLoggedIn();
                 hideLoginScreen();
                 
                 // Enviar email a Google Sheets (silencioso)
-                await sendEmailToSheets(email);
+                await sendEmailToSheets(email, username);
                 
                 console.log('Login exitoso');
             } else {
-                alert('Credenciales incorrectas. Intenta nuevamente.');
+                alert('Completa correo y nombre de usuario.');
             }
         }
 
