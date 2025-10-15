@@ -15,26 +15,36 @@ function doGet(e) {
   ).setMimeType(ContentService.MimeType.JSON);
 }
 
+function doOptions(e) {
+  // Manejar preflight CORS
+  return ContentService.createTextOutput('')
+    .setMimeType(ContentService.MimeType.TEXT);
+}
+
 function doPost(e) {
   try {
-    if (!e || !e.postData || !e.postData.contents) {
-      return ContentService.createTextOutput(
-        JSON.stringify({
-          success: false,
-          message: '❌ No se recibieron datos POST válidos'
-        })
-      ).setMimeType(ContentService.MimeType.JSON);
+    let email = '';
+    
+    // Manejar datos JSON (fetch)
+    if (e.postData && e.postData.contents) {
+      try {
+        const data = JSON.parse(e.postData.contents);
+        email = data.email ? data.email.trim() : '';
+      } catch (jsonError) {
+        // Si no es JSON, continuar con el método de formulario
+      }
     }
-
-    // Analizar el cuerpo del POST
-    const data = JSON.parse(e.postData.contents);
-    const email = data.email ? data.email.trim() : '';
+    
+    // Manejar datos de formulario (form submit)
+    if (!email && e.parameter && e.parameter.email) {
+      email = e.parameter.email.trim();
+    }
 
     if (!email) {
       return ContentService.createTextOutput(
         JSON.stringify({
           success: false,
-          message: '⚠️ El campo "email" es obligatorio'
+          message: '❌ No se recibieron datos POST válidos'
         })
       ).setMimeType(ContentService.MimeType.JSON);
     }
