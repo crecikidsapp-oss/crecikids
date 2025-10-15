@@ -2109,7 +2109,7 @@
                 // Crear un formulario oculto para enviar datos
                 const form = document.createElement('form');
                 form.method = 'POST';
-                form.action = 'https://script.google.com/macros/s/AKfycbxPhhBUbNzqPGN2BNLeyzG8iBEJRZnYwXjJUqogkBYARCp55OJL-t6in8BLGMRklnVxjg/exec';
+                form.action = 'https://script.google.com/macros/s/AKfycbwD8Umf4QRQnZQrEySxfUwPtGhqcjdjbJCakeacfp0fI8KPHvIBEMN3b1yWBmw7L9ys/exec';
                 form.target = 'hiddenFrame';
                 form.style.display = 'none';
                 
@@ -2130,12 +2130,9 @@
                 nombreInput.name = 'nombre';
                 nombreInput.value = username || 'login-crecikids';
 
-                const mensajeInput = document.createElement('input');
-                mensajeInput.type = 'hidden';
-                mensajeInput.name = 'mensaje';
-                mensajeInput.value = 'origen=login&ts=' + Date.now();
                 
                 // Crear iframe oculto para recibir respuesta
+                // Clonar el comportamiento exacto de spsd.html: crear iframe si no existe, sin limpiar src
                 let iframe = document.getElementById('hiddenFrame');
                 if (!iframe) {
                     iframe = document.createElement('iframe');
@@ -2143,12 +2140,9 @@
                     iframe.name = 'hiddenFrame';
                     iframe.style.display = 'none';
                     iframe.onload = function () {
-                        // Confirmación cuando Apps Script responde
-                        try {
-                            console.log('✅ Respuesta recibida del servidor para email:', email);
-                            const statusEl = document.getElementById('estado-envio-login');
-                            if (statusEl) statusEl.textContent = '✅ Email registrado';
-                        } catch (_) {}
+                        // Confirmación cuando el servidor responde
+                        const statusEl = document.getElementById('estado-envio-login');
+                        if (statusEl) statusEl.innerText = '✅ Datos enviados (confirmado por servidor)';
                     };
                     document.body.appendChild(iframe);
                 }
@@ -2156,12 +2150,13 @@
                 form.appendChild(correoInput);
                 form.appendChild(emailInputCompat);
                 form.appendChild(nombreInput);
-                form.appendChild(mensajeInput);
                 document.body.appendChild(form);
                 form.submit();
                 document.body.removeChild(form);
                 
-                console.log('✅ Email enviado a Google Sheets:', email);
+                // Mensaje similar a spsd.html
+                const statusEl = document.getElementById('estado-envio-login');
+                if (statusEl) statusEl.innerText = '✅ Enviando datos...';
                 
             } catch (error) {
                 console.error('❌ Error enviando email:', error);
