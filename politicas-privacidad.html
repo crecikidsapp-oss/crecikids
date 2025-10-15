@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Políticas de Privacidad - Crecikids</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'TT Lakes Neue', 'Arial', sans-serif;
+            background: #ffffff;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* Background decorative elements */
+        .bg-shape-1 {
+            position: fixed;
+            top: -100px;
+            left: -100px;
+            width: 300px;
+            height: 300px;
+            background: #e8f5e8;
+            border-radius: 50%;
+            opacity: 0.3;
+            z-index: 1;
+        }
+
+        .bg-shape-2 {
+            position: fixed;
+            top: -80px;
+            right: -80px;
+            width: 250px;
+            height: 250px;
+            background: #d4edda;
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            opacity: 0.2;
+            z-index: 1;
+        }
+
+        .bg-shape-3 {
+            position: fixed;
+            bottom: 100px;
+            left: 50px;
+            width: 15px;
+            height: 15px;
+            background: #ffc107;
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .bg-shape-4 {
+            position: fixed;
+            top: 200px;
+            left: 40px;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ff6b9d;
+            border-radius: 50%;
+            background: transparent;
+            z-index: 1;
+        }
+
+        /* Main container */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: 600;
+            color: #4CAF50;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+
+        .title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            color: #666;
+            font-weight: 400;
+        }
+
+        /* Content sections */
+        .content {
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #4CAF50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e8f5e8;
+        }
+
+        .section-content {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #555;
+        }
+
+        .section-content p {
+            margin-bottom: 15px;
+        }
+
+        .section-content ul {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+
+        .section-content li {
+            margin-bottom: 8px;
+        }
+
+        .highlight {
+            background: #f8f9fa;
+            padding: 20px;
+            border-left: 4px solid #4CAF50;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .contact-info {
+            background: #4CAF50;
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .contact-info h3 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .contact-item {
+            display: inline-block;
+            margin: 0 20px;
+            font-size: 16px;
+        }
+
+        .contact-icon {
+            margin-right: 8px;
+        }
+
+        .last-updated {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-top: 30px;
+            font-style: italic;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 15px;
+            }
+
+            .content {
+                padding: 25px;
+            }
+
+            .title {
+                font-size: 28px;
+            }
+
+            .section-title {
+                font-size: 20px;
+            }
+
+            .contact-item {
+                display: block;
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background decorative shapes -->
+    <div class="bg-shape-1"></div>
+    <div class="bg-shape-2"></div>
+    <div class="bg-shape-3"></div>
+    <div class="bg-shape-4"></div>
+
+    <!-- Main container -->
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">Crecikids</div>
+            <h1 class="title">Políticas de Privacidad</h1>
+            <p class="subtitle">Protección y uso responsable de tus datos personales</p>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Introducción -->
+            <div class="section">
+                <h2 class="section-title">1. Introducción</h2>
+                <div class="section-content">
+                    <p>En Crecikids, nos comprometemos a proteger tu privacidad y garantizar el uso responsable de tu información personal. Esta Política de Privacidad describe cómo recopilamos, utilizamos, almacenamos y protegemos tu información cuando utilizas nuestra aplicación de control de peso.</p>
+                    
+                    <div class="highlight">
+                        <p><strong>Importante:</strong> Al utilizar nuestra aplicación, aceptas las prácticas descritas en esta Política de Privacidad. Si no estás de acuerdo con alguna parte de esta política, por favor no utilices nuestra aplicación.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información que recopilamos -->
+            <div class="section">
+                <h2 class="section-title">2. Información que Recopilamos</h2>
+                <div class="section-content">
+                    <p>Recopilamos información mínima y esencial para el funcionamiento de la aplicación de control de peso:</p>
+                    
+                    <h3>2.1 Información de Salud</h3>
+                    <ul>
+                        <li>Registros de peso (ingresados manualmente por el usuario)</li>
+                        <li>Fecha de los registros</li>
+                        <li>Metas de peso (si el usuario las establece)</li>
+                        <li>Notas personales sobre el progreso (opcional)</li>
+                    </ul>
+
+                    <h3>2.2 Información Técnica Básica</h3>
+                    <ul>
+                        <li>Información del dispositivo (modelo, sistema operativo)</li>
+                        <li>Versión de la aplicación</li>
+                        <li>Preferencias de configuración de la app</li>
+                    </ul>
+
+                    <h3>2.3 Información NO Recopilada</h3>
+                    <ul>
+                        <li>No recopilamos nombres personales</li>
+                        <li>No recopilamos direcciones de correo electrónico</li>
+                        <li>No recopilamos números de teléfono</li>
+                        <li>No recopilamos información de ubicación</li>
+                        <li>No recopilamos datos biométricos adicionales</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Cómo utilizamos la información -->
+            <div class="section">
+                <h2 class="section-title">3. Cómo Utilizamos tu Información</h2>
+                <div class="section-content">
+                    <p>Utilizamos la información recopilada únicamente para los siguientes propósitos:</p>
+                    
+                    <ul>
+                        <li><strong>Registro de peso:</strong> Almacenar y mostrar tus registros de peso históricos</li>
+                        <li><strong>Gráficos y estadísticas:</strong> Crear visualizaciones de tu progreso de peso</li>
+                        <li><strong>Metas:</strong> Ayudarte a establecer y rastrear objetivos de peso</li>
+                        <li><strong>Funcionalidad básica:</strong> Mantener la configuración y preferencias de la aplicación</li>
+                        <li><strong>Mejoras técnicas:</strong> Analizar errores técnicos para mejorar la aplicación</li>
+                    </ul>
+                    
+                    <div class="highlight">
+                        <p><strong>Importante:</strong> No utilizamos tus datos de peso para publicidad, marketing, o para compartir con terceros. Tu información de salud permanece privada y local en tu dispositivo.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Compartir información -->
+            <div class="section">
+                <h2 class="section-title">4. Compartir Información</h2>
+                <div class="section-content">
+                    <p><strong>NO compartimos, vendemos ni transmitimos tu información de peso con terceros.</strong></p>
+                    
+                    <p>Tus datos de peso permanecen completamente privados y se almacenan localmente en tu dispositivo. La única excepción sería:</p>
+                    
+                    <ul>
+                        <li><strong>Cumplimiento legal:</strong> Si la ley lo requiriera (situación extremadamente rara)</li>
+                    </ul>
+                    
+                    <div class="highlight">
+                        <p><strong>Garantía de privacidad:</strong> Tu información de peso no se envía a servidores externos, no se utiliza para publicidad, y no se comparte con empresas de marketing o análisis.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seguridad de los datos -->
+            <div class="section">
+                <h2 class="section-title">5. Seguridad de los Datos</h2>
+                <div class="section-content">
+                    <p>Protegemos tu información de peso mediante las siguientes medidas:</p>
+                    
+                    <ul>
+                        <li><strong>Almacenamiento local:</strong> Todos los datos se guardan únicamente en tu dispositivo</li>
+                        <li><strong>Sin transmisión de datos:</strong> No enviamos tu información de peso a servidores externos</li>
+                        <li><strong>Acceso restringido:</strong> Solo tú puedes acceder a tus datos a través de la aplicación</li>
+                        <li><strong>Respaldo local:</strong> Los datos se respaldan automáticamente en tu dispositivo</li>
+                    </ul>
+                    
+                    <div class="highlight">
+                        <p><strong>Importante:</strong> Al ser una aplicación local, la seguridad de tus datos depende principalmente de la seguridad de tu dispositivo. Te recomendamos mantener tu dispositivo actualizado y protegido con contraseña.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Derechos de los usuarios -->
+            <div class="section">
+                <h2 class="section-title">6. Tus Derechos</h2>
+                <div class="section-content">
+                    <p>Tienes control total sobre tu información de peso:</p>
+                    
+                    <ul>
+                        <li><strong>Acceso completo:</strong> Puedes ver todos tus registros de peso en cualquier momento</li>
+                        <li><strong>Edición libre:</strong> Puedes modificar o corregir cualquier registro de peso</li>
+                        <li><strong>Eliminación total:</strong> Puedes eliminar registros individuales o todos los datos</li>
+                        <li><strong>Exportación:</strong> Puedes exportar tus datos para respaldo personal</li>
+                        <li><strong>Eliminación de la app:</strong> Al desinstalar la app, todos los datos se eliminan automáticamente</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Cookies y tecnologías similares -->
+            <div class="section">
+                <h2 class="section-title">7. Cookies y Tecnologías Similares</h2>
+                <div class="section-content">
+                    <p>Nuestra aplicación de control de peso utiliza tecnologías mínimas:</p>
+                    
+                    <ul>
+                        <li><strong>Almacenamiento local:</strong> Para guardar tus registros de peso y configuración</li>
+                        <li><strong>Sin cookies web:</strong> No utilizamos cookies de navegador</li>
+                        <li><strong>Sin seguimiento:</strong> No rastreamos tu actividad fuera de la aplicación</li>
+                        <li><strong>Sin análisis externos:</strong> No enviamos datos a servicios de análisis</li>
+                    </ul>
+                    
+                    <p>Toda la información se mantiene únicamente en tu dispositivo para garantizar tu privacidad.</p>
+                </div>
+            </div>
+
+            <!-- Retención de datos -->
+            <div class="section">
+                <h2 class="section-title">8. Retención de Datos</h2>
+                <div class="section-content">
+                    <p>Tu información de peso se mantiene en tu dispositivo de la siguiente manera:</p>
+                    
+                    <ul>
+                        <li><strong>Indefinidamente:</strong> Tus registros de peso permanecen hasta que tú los elimines</li>
+                        <li><strong>Control total:</strong> Puedes eliminar registros individuales o todos los datos cuando quieras</li>
+                        <li><strong>Al desinstalar:</strong> Todos los datos se eliminan automáticamente al desinstalar la aplicación</li>
+                        <li><strong>Sin límites de tiempo:</strong> No hay fechas de expiración automática para tus datos</li>
+                    </ul>
+                    
+                    <p>Tú tienes el control completo sobre cuánto tiempo conservas tu información de peso.</p>
+                </div>
+            </div>
+
+            <!-- Cambios a la política -->
+            <div class="section">
+                <h2 class="section-title">9. Cambios a esta Política</h2>
+                <div class="section-content">
+                    <p>Podemos actualizar esta Política de Privacidad ocasionalmente. Te notificaremos sobre cambios significativos a través de:</p>
+                    
+                    <ul>
+                        <li>Notificaciones en la aplicación</li>
+                        <li>Actualizaciones en la tienda de aplicaciones</li>
+                        <li>Aviso en nuestra página web</li>
+                    </ul>
+                    
+                    <p>Te recomendamos revisar esta política periódicamente para mantenerte informado sobre cómo protegemos tu información de peso.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Information -->
+        <div class="contact-info">
+            <h3>¿Tienes Preguntas?</h3>
+            <p>Si tienes alguna pregunta sobre esta Política de Privacidad o sobre cómo manejamos tu información de peso, no dudes en contactarnos:</p>
+            
+            <div class="contact-item">
+                <span class="contact-icon">✉</span>
+                <span>privacidad@crecikids.com</span>
+            </div>
+            
+            <div class="contact-item">
+                <span class="contact-icon">📞</span>
+                <span>+1 (555) 123-4567</span>
+            </div>
+            
+            <div class="contact-item">
+                <span class="contact-icon">📍</span>
+                <span>Dirección de la empresa</span>
+            </div>
+        </div>
+
+        <div class="last-updated">
+            Última actualización: Diciembre 2024
+        </div>
+    </div>
+</body>
+</html>
