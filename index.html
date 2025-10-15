@@ -1,0 +1,3072 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de IMC</title>
+    <style>
+        @font-face {
+            font-family: 'Quebec Serial ExtraBold';
+            src: url('fonts/Quebec Serial ExtraBold.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Quebec Serial ExtraBold', 'TT Lakes Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: url('images/fondo.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: #333;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .phone-container {
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+            background: transparent;
+            border-radius: 0;
+            padding: 0;
+            box-shadow: none;
+            position: relative;
+        }
+
+        .screen {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border-radius: 32px;
+            overflow: hidden;
+            position: relative;
+            display: none;
+            padding-bottom: 60px; /* Espacio para la navegación fija */
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        /* Pantalla Principal - BMI Calculator */
+        .bmi-content {
+            padding: 0;
+            height: calc(100% - 60px);
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 80px; /* Espacio para la navegación */
+        }
+
+        .header {
+            background: linear-gradient(135deg, #FF8C00 0%, #FF7F00 100%);
+            padding: 40px 20px 30px;
+            border-radius: 0 0 30px 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            opacity: 0.3;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            top: -30px;
+            right: -30px;
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            opacity: 0.2;
+        }
+
+        .app-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #FFFFFF;
+            text-align: center;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .logo-text {
+            font-size: 18px;
+            font-weight: bold;
+            color: #FFFFFF;
+            margin: 0;
+        }
+
+        .menu-btn {
+            width: 24px;
+            height: 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            color: #000000;
+        }
+
+        /* Logo global fijo arriba de todo */
+        .global-logo {
+            position: fixed;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10000; /* por encima de overlays y navegación */
+            width: 160px;
+            max-width: 45vw;
+            height: auto;
+            pointer-events: none; /* no bloquear clics */
+            filter: none;
+        }
+
+        /* Separación del título principal */
+        .title-line-1 {
+            line-height: 0.98 !important;
+        }
+
+        .title-line-2 {
+            line-height: 0.98 !important;
+        }
+
+        .gender-selection {
+            margin-bottom: 30px;
+        }
+
+        .gender-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .gender-btn {
+            flex: 1;
+            padding: 4px 20px;
+            border: none;
+            border-radius: 15px;
+            background: #FF8C00;
+            color: #FFFFFF;
+            cursor: pointer;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .gender-btn:focus {
+            outline: none;
+        }
+
+        .gender-btn:active {
+            outline: none;
+        }
+
+        .gender-btn::before,
+        .gender-btn::after {
+            display: none !important;
+        }
+
+        .gender-btn.active {
+            background: #E66B00;
+            color: #FFFFFF;
+            transform: scale(1.01);
+        }
+
+        .gender-btn:not(.active) {
+            background: #FF8C00;
+            color: #FFFFFF;
+        }
+
+
+        .gender-icon {
+            font-size: 28px;
+            color: #FFFFFF;
+            font-weight: 900;
+            text-shadow: 0 0 2px #FFFFFF, 0 0 4px #FFFFFF;
+            -webkit-text-stroke: 1px #FFFFFF;
+            text-stroke: 1px #FFFFFF;
+        }
+
+        .gender-label {
+            font-size: 20px;
+            font-weight: 600;
+            color: #FFFFFF;
+            font-family: 'Quebec Serial ExtraBold', 'TT Lakes Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .input-section {
+            margin-bottom: 25px;
+        }
+
+        .input-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333333;
+            margin-bottom: 8px;
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .input-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-field {
+            width: auto;
+            min-width: 120px;
+            padding: 18px 20px;
+            border: none;
+            border-radius: 15px;
+            font-size: 16px;
+            text-align: center;
+            background: linear-gradient(90deg, #FFFFFF 0%, #FF8C00 50%, #FF8C00 100%);
+            color: #333333;
+            font-family: 'Quebec Serial ExtraBold', 'TT Lakes Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-weight: 600;
+            position: relative;
+        }
+
+        .input-field::placeholder {
+            color: rgba(51, 51, 51, 0.7);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .input-field:focus {
+            outline: none;
+            transform: scale(1.02);
+        }
+
+        .input-arrows {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .arrow-btn {
+            width: 30px;
+            height: 30px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #FF8C00 0%, #FF7F00 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+            color: #FFFFFF;
+            box-shadow: 0 2px 8px rgba(255, 140, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .arrow-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(255, 140, 0, 0.4);
+        }
+
+        .height-inputs {
+            display: flex;
+            gap: 10px;
+        }
+
+        .height-field {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            font-size: 16px;
+            text-align: center;
+            background: white;
+            font-family: 'Quebec Serial ExtraBold', 'TT Lakes Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .unit-toggle {
+            display: flex;
+            gap: 5px;
+            margin-left: 10px;
+        }
+
+        .unit-btn {
+            padding: 8px 12px;
+            border: 1px solid #E5E7EB;
+            border-radius: 6px;
+            background: white;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .unit-btn.active {
+            background: #34C759;
+            color: #000000;
+            border-color: #34C759;
+        }
+
+        .calculate-btn {
+            background: linear-gradient(135deg, #FF7F00 0%, #FF6B00 100%);
+            color: #FFFFFF;
+            border: none;
+            padding: 18px;
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+            font-family: 'Quebec Serial ExtraBold', 'TT Lakes Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .calculate-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 16px rgba(255, 140, 0, 0.4);
+        }
+
+        .calculate-btn:focus {
+            outline: none;
+        }
+
+        .calculate-btn:active {
+            outline: none;
+        }
+
+        .calculate-btn::before,
+        .calculate-btn::after {
+            display: none !important;
+        }
+
+        .result-section {
+            margin-top: 72px;
+            padding: 18px;
+            background: linear-gradient(135deg, #FFFFFF 0%, #F8F9FA 100%);
+            border-radius: 12px;
+            text-align: center;
+            display: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15), 0 2px 6px rgba(0,0,0,0.1);
+            border: 1px solid #E1E5E9;
+            min-height: 108px;
+            position: relative;
+            backdrop-filter: blur(10px);
+            transform: scale(0.864);
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .result-section::before {
+            content: '';
+            position: absolute;
+            bottom: -16px;
+            right: 20px;
+            width: 0;
+            height: 0;
+            border-left: 16px solid transparent;
+            border-right: 16px solid transparent;
+            border-top: 16px solid #E1E5E9;
+            z-index: 1;
+        }
+
+        .result-section::after {
+            content: '';
+            position: absolute;
+            bottom: -13px;
+            right: 23px;
+            width: 0;
+            height: 0;
+            border-left: 13px solid transparent;
+            border-right: 13px solid transparent;
+            border-top: 13px solid #F8F9FA;
+            z-index: 2;
+        }
+
+        .result-section.show {
+            display: flex !important;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .result-section.show.empty-state {
+            flex-direction: row !important;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: scale(0.864) translateY(0px);
+            }
+            50% {
+                transform: scale(0.864) translateY(-4px);
+            }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Estilos para la pantalla de login - sin animaciones */
+
+        /* Efectos hover para el botón de login */
+        #login-form button:hover {
+            background: #E67700 !important;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 140, 0, 0.3);
+        }
+
+        /* Efectos focus para inputs */
+        #login-form input:focus {
+            border-bottom-color: #E67700 !important;
+            box-shadow: 0 2px 0 #E67700;
+        }
+
+        /* Efectos para el enlace de registro */
+        #login-overlay span[style*="cursor: pointer"]:hover {
+            color: #E67700 !important;
+            text-decoration: none !important;
+        }
+
+        .bmi-value {
+            font-size: 56px;
+            font-weight: bold;
+            color: #34C759;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .bmi-category {
+            font-size: 22px;
+            font-weight: 800;
+            color: #E66B00;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .bmi-description {
+            font-size: 17px;
+            color: #4B5563;
+            line-height: 1.6;
+            max-width: 280px;
+            margin: 0 auto;
+            font-weight: 500;
+        }
+
+        .bmi-range {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(52, 199, 89, 0.1);
+            border-radius: 8px;
+            font-size: 14px;
+            color: #34C759;
+            font-weight: 600;
+        }
+
+        /* Overlay Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        #pediatric-bmi-modal {
+            z-index: 1001 !important;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+
+        .modal-content {
+            background: #FFFFFF;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 350px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            position: relative;
+            animation: slideUp 0.4s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #E66B00;
+            margin-bottom: 20px;
+        }
+
+        .modal-bmi-value {
+            font-size: 64px;
+            font-weight: bold;
+            color: #E66B00;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Colores dinámicos para modal adulto masculino (dorado) */
+        .gender-male .modal-bmi-value {
+            color: #E66B00;
+        }
+
+        .gender-male .modal-bmi-range {
+            background: rgba(230, 107, 0, 0.1);
+            color: #888888;
+        }
+
+        .gender-male .modal-btn-primary {
+            background: #E66B00;
+        }
+
+        .gender-male .modal-btn-primary:hover {
+            background: #CC5E00;
+        }
+
+        /* Colores dinámicos para modal adulto femenino (amarillo) */
+        .gender-female .modal-bmi-value {
+            color: #E66B00;
+        }
+
+        .gender-female .modal-bmi-range {
+            background: rgba(230, 107, 0, 0.1);
+            color: #888888;
+        }
+
+        .gender-female .modal-btn-primary {
+            background: #E66B00;
+        }
+
+        .gender-female .modal-btn-primary:hover {
+            background: #CC5E00;
+        }
+
+        .modal-bmi-category {
+            font-size: 22px;
+            font-weight: 700;
+            color: #666666;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .modal-bmi-description {
+            font-size: 16px;
+            color: #888888;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .modal-bmi-range {
+            padding: 12px;
+            background: rgba(230, 107, 0, 0.1);
+            border-radius: 10px;
+            font-size: 14px;
+            color: #888888;
+            font-weight: 600;
+            margin-bottom: 25px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .modal-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-btn-primary {
+            background: #E66B00;
+            color: #FFFFFF;
+        }
+
+        .modal-btn-primary:hover {
+            background: #CC5E00;
+        }
+
+        .modal-btn-secondary {
+            background: #F3F4F6;
+            color: #6B7280;
+        }
+
+        .modal-btn-secondary:hover {
+            background: #E5E7EB;
+        }
+
+
+
+
+
+        .pediatric-content {
+            text-align: center;
+        }
+
+        /* Fondo con imagen semitransparente en sección pediátrica */
+        /* Fondo para todas las pantallas */
+        #calculator-screen::before,
+        #meter-screen::before,
+        #pediatric-screen::before,
+        #stats-screen::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url('images/fondo.png');
+            background-size: 120% auto; /* más grande pero sin cortarse */
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.06; /* 6% */
+            pointer-events: none;
+            transform: scaleX(-1); /* espejo horizontal (mano a la derecha) */
+            transform-origin: center;
+        }
+        
+        #calculator-screen .bmi-content,
+        #meter-screen .bmi-meter-content,
+        #pediatric-screen .bmi-content,
+        #stats-screen .stats-content {
+            position: relative;
+            z-index: 1;
+        }
+
+
+
+        .pediatric-header {
+            margin-bottom: 25px;
+        }
+
+        .pediatric-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .pediatric-subtitle {
+            font-size: 16px;
+            color: #6B7280;
+            font-weight: 500;
+        }
+
+        .pediatric-form {
+            margin-bottom: 20px;
+        }
+
+        .pediatric-field {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .pediatric-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1F2937;
+            margin-bottom: 8px;
+        }
+
+        .pediatric-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            font-size: 16px;
+            text-align: center;
+            background: white;
+            font-family: 'Quebec Serial ExtraBold', 'TT Lakes Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .pediatric-input:focus {
+            outline: none;
+            border-color: #34C759;
+        }
+
+        /* Contenedor para años y meses */
+        .pediatric-age-inputs {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .pediatric-gender-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .pediatric-gender-btn {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            background: #f0f0f0;
+            color: #000000;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .pediatric-gender-btn.active {
+            border-color: #34C759;
+            background: #34C759;
+            color: #000000;
+        }
+
+        /* Colores dinámicos para pediátrico masculino (dorado) */
+        .pediatric-gender-male .pediatric-gender-btn.active {
+            border-color: #E2BA49;
+            background: #E2BA49;
+            color: #000000;
+        }
+
+        .pediatric-gender-male .arrow-btn {
+            border-color: #E2BA49;
+            background: #E2BA49;
+            color: #000000;
+        }
+
+        .pediatric-gender-male .arrow-btn:hover {
+            background: #D4A842;
+        }
+
+        .pediatric-gender-male .calculate-btn {
+            background: #E2BA49;
+        }
+
+        .pediatric-gender-male .calculate-btn:hover {
+            background: #D4A842;
+        }
+
+        .pediatric-gender-male .pediatric-input:focus {
+            border-color: #E2BA49;
+        }
+
+        /* Colores dinámicos para pediátrico femenino (amarillo) */
+        .pediatric-gender-female .pediatric-gender-btn.active {
+            border-color: #FFDC2C;
+            background: #FFDC2C;
+            color: #000000;
+        }
+
+        .pediatric-gender-female .arrow-btn {
+            border-color: #FFDC2C;
+            background: #FFDC2C;
+            color: #000000;
+        }
+
+        .pediatric-gender-female .arrow-btn:hover {
+            background: #E6C626;
+        }
+
+        .pediatric-gender-female .calculate-btn {
+            background: #FFDC2C;
+        }
+
+        .pediatric-gender-female .calculate-btn:hover {
+            background: #E6C626;
+        }
+
+        .pediatric-gender-female .pediatric-input:focus {
+            border-color: #FFDC2C;
+        }
+
+        /* Colores dinámicos para modal pediátrico masculino (dorado) */
+        .pediatric-gender-male .modal-bmi-value {
+            color: #E66B00;
+        }
+
+        .pediatric-gender-male .modal-bmi-range {
+            background: rgba(230, 107, 0, 0.1);
+            color: #888888;
+        }
+
+        .pediatric-gender-male .modal-btn-primary {
+            background: #E66B00;
+        }
+
+        .pediatric-gender-male .modal-btn-primary:hover {
+            background: #CC5E00;
+        }
+
+        /* Colores dinámicos para modal pediátrico femenino (amarillo) */
+        .pediatric-gender-female .modal-bmi-value {
+            color: #E66B00;
+        }
+
+        .pediatric-gender-female .modal-bmi-range {
+            background: rgba(230, 107, 0, 0.1);
+            color: #888888;
+        }
+
+        .pediatric-gender-female .modal-btn-primary {
+            background: #E66B00;
+        }
+
+        .pediatric-gender-female .modal-btn-primary:hover {
+            background: #CC5E00;
+        }
+
+        .pediatric-gender-icon {
+            font-size: 24px;
+        }
+
+        .pediatric-gender-label {
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'Quebec Serial ExtraBold', 'TT Lakes Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .pediatric-calculate-btn {
+            width: 100%;
+            background: #34C759;
+            color: #000000;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            font-family: 'Quebec Serial ExtraBold', 'TT Lakes Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .pediatric-calculate-btn:hover {
+            background: #2FB54E;
+        }
+
+        .pediatric-result {
+            background: #F9FAFB;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            border-left: 4px solid #34C759;
+        }
+
+        .pediatric-bmi-value {
+            font-size: 48px;
+            font-weight: bold;
+            color: #34C759;
+            margin-bottom: 10px;
+        }
+
+        .pediatric-bmi-category {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1F2937;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .pediatric-bmi-description {
+            font-size: 14px;
+            color: #6B7280;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .pediatric-bmi-percentile {
+            font-size: 14px;
+            color: #34C759;
+            font-weight: 600;
+        }
+
+        /* Navegación Inferior */
+        .bottom-nav {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 320px;
+            height: 60px;
+            background: linear-gradient(135deg, #FF8C00 0%, #FF7F00 100%);
+            border: none;
+            border-radius: 30px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 9999;
+            box-shadow: 0 4px 20px rgba(255, 140, 0, 0.3);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            padding: 8px;
+            transition: all 0.3s ease;
+            border-radius: 12px;
+        }
+
+        .nav-item:active {
+            transform: scale(0.95);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Animación de ripple para el clic */
+        .nav-item {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.3s ease, height 0.3s ease;
+            pointer-events: none;
+        }
+
+        .nav-item:active::before,
+        .nav-item.touching::before {
+            width: 60px;
+            height: 60px;
+        }
+
+        .nav-item.active {
+            color: #FFFFFF;
+            transform: scale(1.1);
+        }
+
+        .nav-icon {
+            font-size: 20px;
+        }
+
+
+        .nav-label {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .nav-item.active .nav-label {
+            color: #FFFFFF;
+            font-weight: bold;
+        }
+
+        /* Colores dinámicos para iconos de navegación masculino (dorado) */
+        .gender-male .nav-item.active {
+            color: #E2BA49;
+        }
+
+        .gender-male .nav-item.active .nav-label {
+            color: #E2BA49;
+        }
+
+        /* Iconos de navegación con colores originales */
+        .nav-item img {
+            transition: all 0.2s ease;
+            filter: brightness(0) invert(1);
+        }
+
+        /* Imagen del bebé sin filtro */
+        .nav-item img[src*="bebe.png"] {
+            filter: none !important;
+        }
+
+
+        .nav-item:active img,
+        .nav-item.touching img {
+            transform: scale(0.9);
+        }
+
+        /* Animación de bounce al soltar el clic */
+        @keyframes bounceClick {
+            0% { transform: scale(0.9); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .nav-item.clicked img {
+            animation: bounceClick 0.4s ease;
+        }
+
+
+        /* Mejoras específicas para dispositivos táctiles */
+        @media (hover: none) and (pointer: coarse) {
+            .nav-item {
+                -webkit-tap-highlight-color: transparent;
+                -webkit-touch-callout: none;
+                -webkit-user-select: none;
+                -khtml-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+            }
+            
+            .nav-item:active {
+                transform: scale(0.95);
+                background: rgba(255, 255, 255, 0.1);
+            }
+        }
+
+        /* Pantalla BMI Meter */
+        .bmi-meter-content {
+            padding: 60px 20px 20px;
+            height: calc(100% - 60px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .meter-container {
+            width: 200px;
+            height: 200px;
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            margin-bottom: 0;
+        }
+
+        .meter-circle {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(
+                #FFD700 0deg 90deg,    /* Bajo peso - amarillo */
+                #34C759 90deg 180deg,  /* Peso normal - verde */
+                #FF8C00 180deg 270deg, /* Sobrepeso - naranja */
+                #FF4500 270deg 360deg  /* Obesidad - rojo */
+            );
+            position: relative;
+        }
+
+        .meter-inner {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .meter-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1F2937;
+        }
+
+        .meter-label {
+            font-size: 14px;
+            color: #6B7280;
+        }
+
+        .meter-needle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 2px;
+            height: 80px;
+            background: #1F2937;
+            transform-origin: bottom center;
+            transform: translateX(-50%) rotate(0deg);
+            transition: transform 0.5s ease;
+            display: none;
+        }
+
+        /* Pantalla Statistics */
+        .stats-content {
+            padding: 60px 20px 20px;
+            height: calc(100% - 60px);
+            overflow-y: auto;
+            margin-top: 40%;
+            position: relative;
+        }
+
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: #E66B00;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            color: #FFFFFF;
+        }
+
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #FFFFFF;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .chart-container {
+            background: #E66B00;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #FFFFFF;
+            margin-bottom: 15px;
+        }
+
+        .chart-bar {
+            height: 20px;
+            background: #FFB366;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-fill {
+            height: 100%;
+            background: #FFFFFF;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            border: none;
+        }
+
+
+
+
+        .chart-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 5px;
+        }
+
+        /* Responsive */
+        @media (max-width: 400px) {
+            .phone-container {
+                width: 100%;
+                height: 100vh;
+                margin: 0;
+                border-radius: 0;
+                padding: 0;
+            }
+            
+            .screen {
+                border-radius: 0;
+            }
+        }
+
+        /* Media Query para resolución 360x740 */
+        @media screen and (max-width: 380px) and (max-height: 760px) {
+            /* Contenedor principal */
+            .phone-container {
+                width: 100vw;
+                height: 100vh;
+                margin: 0;
+                border-radius: 0;
+            }
+
+            /* Logo global */
+            .global-logo {
+                transform: translateX(-50%) scale(0.8) !important;
+                top: 3% !important;
+            }
+
+            /* Título principal */
+            #calculator-screen > div[style*="position: absolute"][style*="top: 25%"] {
+                transform: translate(-50%, -50%) scale(1.5) !important;
+                top: 20% !important;
+            }
+
+            #calculator-screen .bmi-content > div[style*="position: absolute"][style*="top: 25%"] > div[style*="line-height: 0.8"] {
+                line-height: 1.4 !important;
+            }
+
+            /* Título pediátrico */
+            #pediatric-screen > div[style*="position: absolute"][style*="top: 25%"] {
+                transform: translate(-50%, -50%) scale(1.4) !important;
+                top: 20% !important;
+            }
+
+            #pediatric-screen .bmi-content > div[style*="position: absolute"][style*="top: 25%"] > div[style*="line-height: 0.8"] {
+                line-height: 1.4 !important;
+            }
+
+            /* Título estadísticas */
+            #stats-screen .stats-content > div[style*="position: absolute"][style*="top: -5%"] {
+                transform: translate(-50%, -50%) scale(1.5) !important;
+                top: -8% !important;
+                padding-top: 40px !important;
+                z-index: 999999 !important;
+            }
+
+            /* Tarjeta blanca principal */
+            #calculator-screen .bmi-content > div[style*="background: #FFFFFF"] {
+                margin-top: 70% !important;
+                padding: 20px !important;
+                border-radius: 30px 30px 0 0 !important;
+                width: 100% !important;
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+            }
+
+            /* Tarjeta blanca pediátrica */
+            #pediatric-screen .bmi-content > div[style*="background: #FFFFFF"] {
+                margin-top: 70% !important;
+                padding: 20px !important;
+                border-radius: 30px 30px 0 0 !important;
+                width: 100% !important;
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+            }
+
+            /* Botones de género más compactos */
+            .gender-buttons {
+                gap: 10px !important;
+            }
+
+            .gender-btn {
+                padding: 4px 15px !important;
+            }
+
+            .gender-icon {
+                font-size: 24px !important;
+            }
+
+            .gender-label {
+                font-size: 18px !important;
+            }
+
+            /* Campos de entrada más compactos */
+            .input-section {
+                margin-bottom: 18px !important;
+            }
+
+            .input-section div[style*="padding: 15px 20px"] {
+                padding: 12px 20px !important;
+            }
+
+            .input-section span[style*="font-size: 22px"] {
+                font-size: 20px !important;
+            }
+
+            .input-section span[style*="font-size: 14px"] {
+                font-size: 12px !important;
+            }
+
+            .input-section input {
+                font-size: 24px !important;
+            }
+
+            /* Botón calcular más compacto */
+            .calculate-btn {
+                padding: 10px 25px !important;
+                font-size: 15px !important;
+                margin-bottom: 18px !important;
+            }
+
+            /* Sección de resultados más pequeña */
+            .result-section {
+                transform: scale(0.8) !important;
+                margin-top: 80px !important;
+            }
+
+            /* Estadísticas más compactas */
+            .stats-content {
+                margin-top: 35% !important;
+                padding: 0 20px !important;
+                overflow: visible !important;
+            }
+
+            .stat-card {
+                padding: 18px !important;
+            }
+
+            .stat-value {
+                font-size: 30px !important;
+            }
+
+            .stat-label {
+                font-size: 13px !important;
+            }
+
+            .chart-container {
+                padding: 18px !important;
+            }
+
+            .chart-title {
+                font-size: 17px !important;
+            }
+
+            /* Navegación inferior */
+            .bottom-nav {
+                height: 60px !important;
+            }
+
+            .nav-item {
+                padding: 10px !important;
+            }
+
+            .nav-item img {
+                width: 38px !important;
+                height: 38px !important;
+            }
+
+            /* Mantener el color original del icono bebe.png */
+            .nav-item img[src*="bebe.png"] {
+                filter: none !important;
+            }
+
+            /* Aplicar filtro blanco a los otros iconos */
+            .nav-item img:not([src*="bebe.png"]) {
+                filter: brightness(0) invert(1) !important;
+            }
+
+            /* Modales más compactos */
+            .modal-content {
+                width: 85% !important;
+                padding: 25px !important;
+            }
+
+            .modal-title {
+                font-size: 22px !important;
+            }
+
+            .modal-bmi-value {
+                font-size: 48px !important;
+            }
+
+            .modal-bmi-category {
+                font-size: 20px !important;
+            }
+
+            /* Overlay de carga */
+            .loading-spinner {
+                width: 70px !important;
+                height: 70px !important;
+                margin-bottom: 10vh !important;
+            }
+
+            /* Medidor más compacto */
+            .meter-container {
+                margin-top: -10% !important;
+                padding: 0 20px !important;
+                display: flex !important;
+                justify-content: center !important;
+                align-items: center !important;
+            }
+
+            .meter-circle {
+                width: 180px !important;
+                height: 180px !important;
+                border-radius: 50% !important;
+                aspect-ratio: 1/1 !important;
+            }
+
+            .bmi-value {
+                font-size: 52px !important;
+            }
+
+            .bmi-category {
+                font-size: 22px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Logo global fijo -->
+    <img class="global-logo" src="images/crecikids.png" alt="CreciKids" style="position: absolute; top: 4%; left: 50%; transform: translateX(-50%) scale(1.20); z-index: 15;" />
+
+    <div class="phone-container">
+        <!-- Pantalla Principal - BMI Calculator -->
+        <div class="screen active" id="calculator-screen">
+            <div class="bmi-content">
+                <div style="text-align: center; position: absolute; top: 25%; left: 50%; transform: translate(-50%, -50%) scale(2.25); z-index: 5;">
+                    <div class="title-line-1" style="font-size: inherit; line-height: 1.4; color: #FFFFFF; text-transform: uppercase; font-family: Arial, sans-serif; font-weight: 300;">CONTROL</div>
+                    <div class="title-line-2" style="font-size: 1.98em; line-height: 1.4; color: #FFFFFF; text-transform: uppercase; font-weight: 900;">DE PESO</div>
+                </div>
+                
+                
+                <div style="padding: 20px; background: #FFFFFF; border-radius: 30px 30px 0 0; margin-top: 72%; position: relative; z-index: 10; flex: 1; display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 100px; width: 100%; margin-left: 0; margin-right: 0;">
+                
+                <div style="margin-top: 12%;">
+                <div class="gender-selection" style="margin-bottom: 25px;">
+                    <div class="gender-buttons">
+                        <button class="gender-btn active" data-gender="male">
+                            <div class="gender-icon">♂</div>
+                            <div class="gender-label">Hombre</div>
+                        </button>
+                        <button class="gender-btn" data-gender="female">
+                            <div class="gender-icon">♀</div>
+                            <div class="gender-label">Mujer</div>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="input-section" style="margin-bottom: 20px;">
+                    <div style="background: linear-gradient(90deg, #FFFFFF 0%, #FF8C00 100%); border-radius: 15px; padding: 15px 20px; width: 100%; display: flex; align-items: center; justify-content: space-between;">
+                        <span style="color: #F79730; font-size: 22px; font-weight: 900; font-family: 'Quebec Serial ExtraBold', 'TT Lakes Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; text-transform: uppercase;">EDAD</span>
+                        <input type="number" class="input-field" id="age" min="1" max="120" placeholder="" value="26" style="background: transparent; border: none; padding: 0; margin: 0; text-align: right; font-size: 26px; color: #FFFFFF; font-family: 'Quebec Serial ExtraBold', 'TT Lakes Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: normal; width: auto; min-width: 60px;">
+                    </div>
+                </div>
+
+                <div class="input-section" style="margin-bottom: 20px;">
+                    <div style="background: linear-gradient(90deg, #FFFFFF 0%, #FF8C00 100%); border-radius: 15px; padding: 15px 20px; width: 100%; display: flex; align-items: center; justify-content: space-between;">
+                        <span style="color: #F79730; font-size: 22px; font-weight: 900; font-family: 'Quebec Serial ExtraBold', 'TT Lakes Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; text-transform: uppercase;">ALTURA<span style="font-size: 14px; font-weight: 900;">(CMS)</span></span>
+                        <input type="number" class="input-field" id="height-ft" min="50" max="250" placeholder="" value="180" style="background: transparent; border: none; padding: 0; margin: 0; text-align: right; font-size: 26px; color: #FFFFFF; font-family: 'Quebec Serial ExtraBold', 'TT Lakes Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: normal; width: auto; min-width: 60px;">
+                    </div>
+                </div>
+
+                <div class="input-section" style="margin-bottom: 25px;">
+                    <div style="background: linear-gradient(90deg, #FFFFFF 0%, #FF8C00 100%); border-radius: 15px; padding: 15px 20px; width: 100%; display: flex; align-items: center; justify-content: space-between; position: relative;">
+                        <span style="color: #F79730; font-size: 22px; font-weight: 900; font-family: 'Quebec Serial ExtraBold', 'TT Lakes Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; text-transform: uppercase;">PESO<span style="font-size: 14px; font-weight: 900;">(LBS)</span></span>
+                        <input type="number" class="input-field" id="weight" min="20" max="1100" placeholder="" value="180" style="background: transparent; border: none; padding: 0; margin: 0; text-align: right; font-size: 26px; color: #FFFFFF; font-family: 'Quebec Serial ExtraBold', 'TT Lakes Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: normal; width: auto; min-width: 60px;">
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: center; margin-bottom: 20px;">
+                    <button class="calculate-btn" onclick="calculateBMI()" style="padding: 12px 30px; background: #E15014; box-shadow: none;">Calcular</button>
+                </div>
+
+                <div class="result-section" id="result-section">
+                    <div style="background: #FF6B6B; color: #000000; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-weight: bold;">
+                        📊 RESULTADO DEL BMI
+                    </div>
+                    <div class="bmi-value" id="bmi-value">0</div>
+                    <div class="bmi-category" id="bmi-category">-</div>
+                    <div class="bmi-description" id="bmi-description">-</div>
+                    <div class="bmi-range" id="bmi-range">-</div>
+                </div>
+                </div>
+                </div>
+            </div>
+
+            <div class="bottom-nav">
+                <div class="nav-item active" onclick="showScreen('calculator-screen')">
+                    <div class="nav-icon" style="display: flex; justify-content: center; align-items: center;"><img src="images/hombre.png" alt="Calculadora" style="width: 40px; height: 40px;"></div>
+                </div>
+                <div class="nav-item" onclick="showScreen('meter-screen')">
+                    <div class="nav-icon" style="display: flex; justify-content: center; align-items: center;"><img src="images/productividad.png" alt="Medidor" style="width: 40px; height: 40px;"></div>
+                </div>
+                <div class="nav-item" onclick="showScreen('stats-screen')">
+                    <div class="nav-icon" style="display: flex; justify-content: center; align-items: center;"><img src="images/grafico.png" alt="Estadísticas" style="width: 40px; height: 40px;"></div>
+                </div>
+                <div class="nav-item" onclick="showScreen('pediatric-screen')">
+                    <div class="nav-icon" style="display: flex; justify-content: center; align-items: center;"><img src="images/bebe.png" alt="Pediátrico" style="width: 40px; height: 40px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pantalla BMI Meter -->
+        <div class="screen" id="meter-screen">
+            <div class="bmi-meter-content">
+                
+                <div class="meter-container">
+                    <div class="meter-circle">
+                        <div class="meter-inner">
+                            <div class="meter-value" id="meter-value">0</div>
+                            <div class="meter-label">BMI</div>
+                        </div>
+                        <div class="meter-needle" id="meter-needle"></div>
+                    </div>
+                </div>
+                <div class="result-section show">
+                    <div class="bmi-category" id="meter-category">Realiza el control</div>
+                    <div class="bmi-description" id="meter-description">para ver los resultados aquí</div>
+                </div>
+            </div>
+
+            <div class="bottom-nav">
+                <div class="nav-item" onclick="showScreen('calculator-screen')">
+                    <div class="nav-icon" style="display: flex; justify-content: center; align-items: center;"><img src="images/hombre.png" alt="Calculadora" style="width: 40px; height: 40px;"></div>
+                </div>
+                <div class="nav-item active" onclick="showScreen('meter-screen')">
+                    <div class="nav-icon" style="display: flex; justify-content: center; align-items: center;"><img src="images/productividad.png" alt="Medidor" style="width: 40px; height: 40px;"></div>
+                </div>
+                <div class="nav-item" onclick="showScreen('stats-screen')">
+                    <div class="nav-icon" style="display: flex; justify-content: center; align-items: center;"><img src="images/grafico.png" alt="Estadísticas" style="width: 40px; height: 40px;"></div>
+                </div>
+                <div class="nav-item" onclick="showScreen('pediatric-screen')">
+                    <div class="nav-icon" style="display: flex; justify-content: center; align-items: center;"><img src="images/bebe.png" alt="Pediátrico" style="width: 40px; height: 40px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pantalla Pediátrica -->
+        <div class="screen gender-male" id="pediatric-screen">
+            <div class="bmi-content">
+                <div style="text-align: center; position: absolute; top: 25%; left: 50%; transform: translate(-50%, -50%) scale(1.8); z-index: 5;">
+                    <div class="title-line-1" style="font-size: inherit; line-height: 1.4; color: #FFFFFF; text-transform: uppercase; font-family: Arial, sans-serif; font-weight: 300;">CONTROL</div>
+                    <div class="title-line-2" style="font-size: 1.98em; line-height: 1.4; color: #FFFFFF; text-transform: uppercase; font-weight: 900;">PEDIATRICO</div>
+                </div>
+                
+
+                <div style="padding: 20px; background: #FFFFFF; border-radius: 30px 30px 0 0; margin-top: 72%; position: relative; z-index: 10; flex: 1; display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 100px; width: 100%; margin-left: 0; margin-right: 0;">
+                
+                <div style="margin-top: 12%;">
+                <div class="gender-selection" style="margin-bottom: 25px;">
+                    <div class="gender-buttons">
+                        <button class="gender-btn active" data-gender="male">
+                            <div class="gender-icon">♂</div>
+                            <div class="gender-label">Niño</div>
+                        </button>
+                        <button class="gender-btn" data-gender="female">
+                            <div class="gender-icon">♀</div>
+                            <div class="gender-label">Niña</div>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="input-section" style="margin-bottom: 20px;">
+                    <div style="background: linear-gradient(90deg, #FFFFFF 0%, #FF8C00 100%); border-radius: 15px; padding: 15px 20px; width: 100%; display: flex; align-items: center; justify-content: space-between;">
+                        <span style="color: #F79730; font-size: 22px; font-weight: 900; font-family: 'Quebec Serial ExtraBold', 'TT Lakes Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; text-transform: uppercase;">EDAD<span style="font-size: 14px; font-weight: 900;">(AÑOS/MESES)</span></span>
+                        <div style="display: flex; align-items: center;">
+                            <input type="number" class="input-field" id="pediatric-age-years" min="2" max="19" placeholder="" value="5" style="background: transparent; border: none; padding: 0; margin: 0; text-align: center; font-size: 26px; color: #FFFFFF; font-family: 'Quebec Serial ExtraBold', 'TT Lakes Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: normal; width: 30px; max-width: 30px; min-width: 30px;">
+                            <span style="color: #FFFFFF; font-size: 20px; font-weight: 600;">/</span>
+                            <input type="number" class="input-field" id="pediatric-age-months" min="0" max="11" placeholder="" value="0" style="background: transparent; border: none; padding: 0; margin: 0; text-align: center; font-size: 26px; color: #FFFFFF; font-family: 'Quebec Serial ExtraBold', 'TT Lakes Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: normal; width: 30px; max-width: 30px; min-width: 30px;">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-section" style="margin-bottom: 20px;">
+                    <div style="background: linear-gradient(90deg, #FFFFFF 0%, #FF8C00 100%); border-radius: 15px; padding: 15px 20px; width: 100%; display: flex; align-items: center; justify-content: space-between;">
+                        <span style="color: #F79730; font-size: 22px; font-weight: 900; font-family: 'Quebec Serial ExtraBold', 'TT Lakes Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; text-transform: uppercase;">ALTURA<span style="font-size: 14px; font-weight: 900;">(CMS)</span></span>
+                        <input type="number" class="input-field" id="pediatric-height" min="50" max="200" placeholder="" value="110" style="background: transparent; border: none; padding: 0; margin: 0; text-align: right; font-size: 26px; color: #FFFFFF; font-family: 'Quebec Serial ExtraBold', 'TT Lakes Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: normal; width: auto; min-width: 60px;">
+                    </div>
+                </div>
+
+                <div class="input-section" style="margin-bottom: 25px;">
+                    <div style="background: linear-gradient(90deg, #FFFFFF 0%, #FF8C00 100%); border-radius: 15px; padding: 15px 20px; width: 100%; display: flex; align-items: center; justify-content: space-between; position: relative;">
+                        <span style="color: #F79730; font-size: 22px; font-weight: 900; font-family: 'Quebec Serial ExtraBold', 'TT Lakes Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; text-transform: uppercase;">PESO<span style="font-size: 14px; font-weight: 900;">(LBS)</span></span>
+                        <input type="number" class="input-field" id="pediatric-weight" min="10" max="220" placeholder="" value="45" style="background: transparent; border: none; padding: 0; margin: 0; text-align: right; font-size: 26px; color: #FFFFFF; font-family: 'Quebec Serial ExtraBold', 'TT Lakes Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: normal; width: auto; min-width: 60px;">
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: center; margin-bottom: 20px;">
+                    <button class="calculate-btn" onclick="calculatePediatricBMI()" style="padding: 12px 30px; background: #E15014; box-shadow: none;">Calcular</button>
+                </div>
+
+                <div class="result-section" id="pediatric-result-section">
+                    <div style="background: #FF6B6B; color: #000000; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-weight: bold;">
+                        📊 RESULTADO DEL BMI PEDIÁTRICO
+                    </div>
+                    <div class="bmi-value" id="pediatric-bmi-value">0</div>
+                    <div class="bmi-category" id="pediatric-bmi-category">-</div>
+                    <div class="bmi-description" id="pediatric-bmi-description">-</div>
+                    <div class="bmi-range" id="pediatric-bmi-range">-</div>
+                </div>
+                </div>
+                </div>
+            </div>
+
+            <div class="bottom-nav gender-male pediatric-gender-male">
+                <div class="nav-item" onclick="showScreen('calculator-screen')">
+                    <div class="nav-icon" style="display: flex; justify-content: center; align-items: center;"><img src="images/hombre.png" alt="Calculadora" style="width: 40px; height: 40px;"></div>
+                </div>
+                <div class="nav-item" onclick="showScreen('meter-screen')">
+                    <div class="nav-icon" style="display: flex; justify-content: center; align-items: center;"><img src="images/productividad.png" alt="Medidor" style="width: 40px; height: 40px;"></div>
+                </div>
+                <div class="nav-item" onclick="showScreen('stats-screen')">
+                    <div class="nav-icon" style="display: flex; justify-content: center; align-items: center;"><img src="images/grafico.png" alt="Estadísticas" style="width: 40px; height: 40px;"></div>
+                </div>
+                <div class="nav-item active" onclick="showScreen('pediatric-screen')">
+                    <div class="nav-icon" style="display: flex; justify-content: center; align-items: center;"><img src="images/bebe.png" alt="Pediátrico" style="width: 40px; height: 40px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pantalla Statistics -->
+        <div class="screen" id="stats-screen">
+            <div class="stats-content">
+                <div style="text-align: center; position: absolute; top: -5%; left: 50%; transform: translate(-50%, -50%) scale(2.25); z-index: 999999; padding-top: 50px;">
+                    <div style="font-size: inherit; line-height: 0.8; color: #FFFFFF; text-transform: uppercase; font-family: 'Quebec Serial ExtraBold', 'TT Lakes Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 300;">ESTADÍSTICAS</div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="current-bmi">0</div>
+                        <div class="stat-label">IMC Actual</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="target-bmi">22.5</div>
+                        <div class="stat-label">IMC Objetivo</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="weight-diff">0</div>
+                        <div class="stat-label">Diferencia Peso</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="bmi-trend">↗</div>
+                        <div class="stat-label">Tendencia</div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-title">Categorías de IMC</div>
+                    <div class="chart-item">
+                        <div class="chart-label">Bajo Peso (&lt;18.5)</div>
+                        <div class="chart-bar">
+                            <div class="chart-fill" style="width: 15%"></div>
+                        </div>
+                    </div>
+                    <div class="chart-item">
+                        <div class="chart-label">Peso Normal (18.5-24.9)</div>
+                        <div class="chart-bar">
+                            <div class="chart-fill" style="width: 60%"></div>
+                        </div>
+                    </div>
+                    <div class="chart-item">
+                        <div class="chart-label">Sobrepeso (25-29.9)</div>
+                        <div class="chart-bar">
+                            <div class="chart-fill" style="width: 20%"></div>
+                        </div>
+                    </div>
+                    <div class="chart-item">
+                        <div class="chart-label">Obesidad (≥30)</div>
+                        <div class="chart-bar">
+                            <div class="chart-fill" style="width: 5%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bottom-nav">
+                <div class="nav-item" onclick="showScreen('calculator-screen')">
+                    <div class="nav-icon" style="display: flex; justify-content: center; align-items: center;"><img src="images/hombre.png" alt="Calculadora" style="width: 40px; height: 40px;"></div>
+                </div>
+                <div class="nav-item" onclick="showScreen('meter-screen')">
+                    <div class="nav-icon" style="display: flex; justify-content: center; align-items: center;"><img src="images/productividad.png" alt="Medidor" style="width: 40px; height: 40px;"></div>
+                </div>
+                <div class="nav-item active" onclick="showScreen('stats-screen')">
+                    <div class="nav-icon" style="display: flex; justify-content: center; align-items: center;"><img src="images/grafico.png" alt="Estadísticas" style="width: 40px; height: 40px;"></div>
+                </div>
+                <div class="nav-item" onclick="showScreen('pediatric-screen')">
+                    <div class="nav-icon" style="display: flex; justify-content: center; align-items: center;"><img src="images/bebe.png" alt="Pediátrico" style="width: 40px; height: 40px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Overlay para advertencia de edad pediátrica -->
+    <div class="modal-overlay" id="age-warning-modal">
+        <div class="modal-content">
+            <div class="modal-title">Edad pediátrica</div>
+            <div class="modal-bmi-description">Para personas menores de 20 años usa la sección pediátrica.</div>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-primary" onclick="goToPediatricFromWarning()">Ir a Pediatría</button>
+                <button class="modal-btn modal-btn-secondary" onclick="closeAgeWarningModal()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Overlay para Resultado IMC -->
+    <div class="modal-overlay" id="bmi-modal">
+        <div class="modal-content">
+            <div class="modal-title">Tu Resultado</div>
+            <div class="modal-bmi-value" id="modal-bmi-value">0</div>
+            <div class="modal-bmi-category" id="modal-bmi-category">-</div>
+            <div class="modal-bmi-description" id="modal-bmi-description">-</div>
+            <div class="modal-bmi-range" id="modal-bmi-range">-</div>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-primary" onclick="closeBMIModalAndShowMeter()">Ver Medidor</button>
+                <button class="modal-btn modal-btn-secondary" onclick="closeBMIModal()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Overlay para Resultado IMC Pediátrico -->
+    <div class="modal-overlay" id="pediatric-bmi-modal">
+        <div class="modal-content">
+            <div class="modal-title">Resultado Pediátrico</div>
+            <div class="modal-bmi-value" id="pediatric-modal-bmi-value">0</div>
+            <div class="modal-bmi-category" id="pediatric-modal-bmi-category">-</div>
+            <div class="modal-bmi-description" id="pediatric-modal-bmi-description">-</div>
+            <div class="modal-bmi-range" id="pediatric-modal-bmi-percentile">-</div>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-primary" onclick="closePediatricBMIModalAndShowMeter()">Ver Medidor</button>
+                <button class="modal-btn modal-btn-secondary" onclick="closePediatricBMIModal()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Overlay para error de valores válidos -->
+    <div class="modal-overlay" id="valid-values-error-modal">
+        <div class="modal-content">
+            <div class="modal-title">⚠️ Error</div>
+            <div class="modal-bmi-description">Por favor ingresa valores válidos para edad y peso</div>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-primary" onclick="closeValidValuesErrorModal()">Entendido</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Overlay para error de valores válidos pediátrico -->
+    <div class="modal-overlay" id="pediatric-valid-values-error-modal">
+        <div class="modal-content">
+            <div class="modal-title">⚠️ Error</div>
+            <div class="modal-bmi-description">Por favor ingresa valores válidos para edad y peso</div>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-primary" onclick="closePediatricValidValuesErrorModal()">Entendido</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Overlay para edad adulta desde pediátrico -->
+    <div class="modal-overlay" id="adult-age-modal">
+        <div class="modal-content">
+            <div class="modal-title">Edad adulta</div>
+            <div class="modal-bmi-description">Para personas de 20 años o más usa la sección de adultos.</div>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-primary" onclick="goToAdultFromPediatric()">Ir a Adultos</button>
+                <button class="modal-btn modal-btn-secondary" onclick="closeAdultAgeModal()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay de carga -->
+    <!-- Pantalla de Carga -->
+    <div id="loading-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10000;">
+        <img src="images/carga.png" alt="Cargando..." style="width: 100vw; height: 100vh; object-fit: cover; position: absolute; top: 0; left: 0;">
+        <div class="loading-spinner" style="width: 78px; height: 78px; border: 5px solid rgba(255,255,255,0.3); border-top: 5px solid #FF8C00; border-radius: 50%; animation: spin 1s linear infinite; z-index: 10001; position: relative; margin-bottom: 10vh;"></div>
+    </div>
+
+    <!-- Pantalla de Login -->
+    <div id="login-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #FF8C00 0%, #FF6B35 100%); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 10001;">
+        <!-- Fondos decorativos -->
+        <div style="position: absolute; top: -50px; left: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%; filter: blur(20px);"></div>
+        <div style="position: absolute; bottom: -80px; right: -80px; width: 300px; height: 300px; background: rgba(255,255,255,0.08); border-radius: 50%; filter: blur(30px);"></div>
+        <div style="position: absolute; top: 20%; right: -100px; width: 250px; height: 250px; background: rgba(255,255,255,0.06); border-radius: 50%; filter: blur(25px);"></div>
+        
+        <!-- Panel principal de login -->
+        <div class="login-panel" style="background: #FFFFFF; border-radius: 30px; padding: 40px 30px; width: 85%; max-width: 350px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); position: relative; z-index: 10;">
+            <!-- Logo -->
+            <div style="text-align: center; margin-bottom: 30px;">
+                <div style="font-size: 28px; font-weight: 900; color: #2C3E50; font-family: 'Quebec Serial ExtraBold', 'TT Lakes Neue', sans-serif; margin-bottom: 5px;">
+                    CreciKids
+                </div>
+                <div style="width: 40px; height: 2px; background: #BDC3C7; margin: 0 auto;"></div>
+            </div>
+            
+            <!-- Título de bienvenida -->
+            <div style="text-align: center; margin-bottom: 35px;">
+                <h1 style="color: #FF8C00; font-size: 24px; font-weight: 900; margin: 0; text-transform: uppercase; font-family: 'Quebec Serial ExtraBold', 'TT Lakes Neue', sans-serif;">
+                    BIENVENIDO
+                </h1>
+            </div>
+            
+            <!-- Formulario de login -->
+            <form id="login-form" style="display: flex; flex-direction: column; gap: 25px;">
+                <!-- Campo Correo -->
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="width: 16px; height: 16px; background: #FF8C00; border-radius: 3px; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px;">✉</div>
+                        <label style="color: #FF8C00; font-size: 14px; font-weight: 600; text-transform: uppercase; font-family: 'TT Lakes Neue', sans-serif;">CORREO</label>
+                    </div>
+                    <input type="email" id="login-email" value="Credkids@gmail.com" style="border: none; border-bottom: 2px solid #FF8C00; padding: 12px 0; font-size: 16px; color: #2C3E50; background: transparent; outline: none; font-family: 'TT Lakes Neue', sans-serif; font-weight: 500;">
+                </div>
+                
+                <!-- Campo Contraseña -->
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="width: 16px; height: 16px; background: #FF8C00; border-radius: 3px; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px;">🔒</div>
+                        <label style="color: #FF8C00; font-size: 14px; font-weight: 600; text-transform: uppercase; font-family: 'TT Lakes Neue', sans-serif;">CONTRASEÑA</label>
+                    </div>
+                    <input type="password" id="login-password" value="CredKids2025@#" style="border: none; border-bottom: 2px solid #FF8C00; padding: 12px 0; font-size: 16px; color: #2C3E50; background: transparent; outline: none; font-family: 'TT Lakes Neue', sans-serif; font-weight: 500;">
+                </div>
+                
+                <!-- Botón Ingresar -->
+                <button type="submit" style="background: #FF8C00; color: white; border: none; padding: 15px; border-radius: 25px; font-size: 16px; font-weight: 700; text-transform: uppercase; font-family: 'Quebec Serial ExtraBold', 'TT Lakes Neue', sans-serif; cursor: pointer; transition: all 0.3s ease; margin-top: 10px;">
+                    Ingresar
+                </button>
+            </form>
+            
+            <!-- Enlace de registro -->
+            <div style="text-align: center; margin-top: 25px;">
+                <p style="color: #7F8C8D; font-size: 14px; margin: 0; font-family: 'TT Lakes Neue', sans-serif;">
+                    ¿Aún no tienes cuenta? 
+                    <span style="color: #FF8C00; font-weight: 600; cursor: pointer; text-decoration: underline;">Regístrate aquí</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales para almacenar datos
+        let currentGender = 'male';
+        let currentPediatricGender = 'male';
+        let bmiHistory = [];
+
+        // Cache de recursos con localStorage
+        const CACHE_VERSION = '1.0.0';
+        const CACHE_KEY = 'crecikids_cache_v' + CACHE_VERSION;
+        
+        // Lista de recursos a cachear
+        const RESOURCES_TO_CACHE = [
+            'images/crecikids.png',
+            'images/bebe.png',
+            'images/bebe2.png',
+            'images/bebeblanci.png',
+            'images/duda.png',
+            'images/f.png',
+            'images/fondo.png',
+            'images/fondo2.png',
+            'images/google-play-store-new.png',
+            'images/grafico.png',
+            'images/hombre.png',
+            'images/hombre2.png',
+            'images/logoplay.png',
+            'images/lupa.png',
+            'images/productividad.png',
+            'images/s.png',
+            'images/ssd.png',
+            'images/carga.png',
+            'fonts/Quebec Serial ExtraBold.otf'
+        ];
+
+        // Función para cachear un recurso
+        async function cacheResource(url) {
+            try {
+                const response = await fetch(url);
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const reader = new FileReader();
+                    reader.onload = function() {
+                        const base64 = reader.result.split(',')[1];
+                        localStorage.setItem('cache_' + url, base64);
+                        localStorage.setItem('cache_type_' + url, blob.type);
+                        console.log('Cached:', url);
+                    };
+                    reader.readAsDataURL(blob);
+                }
+            } catch (error) {
+                console.log('Error caching:', url, error);
+            }
+        }
+
+        // Función para obtener recurso del cache
+        function getCachedResource(url) {
+            const cached = localStorage.getItem('cache_' + url);
+            const type = localStorage.getItem('cache_type_' + url);
+            if (cached && type) {
+                return `data:${type};base64,${cached}`;
+            }
+            return url; // Fallback a URL original
+        }
+
+        // Función para precargar todos los recursos
+        async function preloadResources() {
+            const cacheData = localStorage.getItem(CACHE_KEY);
+            if (!cacheData) {
+                console.log('Iniciando precarga de recursos...');
+                
+                // Cachear cada recurso
+                for (const resource of RESOURCES_TO_CACHE) {
+                    await cacheResource(resource);
+                    // Pequeña pausa para no sobrecargar
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+                
+                // Marcar como cacheado
+                localStorage.setItem(CACHE_KEY, 'cached');
+                console.log('Todos los recursos han sido cacheados');
+            } else {
+                console.log('Recursos ya cacheados, usando cache');
+            }
+        }
+
+        // Función para reemplazar URLs con versiones cacheadas
+        function replaceWithCachedResources() {
+            // Reemplazar imágenes
+            document.querySelectorAll('img').forEach(img => {
+                const src = img.src;
+                if (RESOURCES_TO_CACHE.includes(src)) {
+                    img.src = getCachedResource(src);
+                }
+            });
+
+            // Reemplazar fuentes
+            const fontUrl = 'fonts/Quebec Serial ExtraBold.otf';
+            const cachedFont = getCachedResource(fontUrl);
+            if (cachedFont !== fontUrl) {
+                const style = document.createElement('style');
+                style.textContent = `
+                    @font-face {
+                        font-family: 'Quebec Serial ExtraBold';
+                        src: url('${cachedFont}') format('opentype');
+                        font-weight: normal;
+                        font-style: normal;
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+
+        // Función para limpiar cache (útil para desarrollo)
+        function clearCache() {
+            const keys = Object.keys(localStorage);
+            keys.forEach(key => {
+                if (key.startsWith('cache_') || key === CACHE_KEY) {
+                    localStorage.removeItem(key);
+                }
+            });
+            console.log('Cache limpiado');
+        }
+
+        // Función para limpiar todo (cache + login) - útil para desarrollo
+        function clearAllData() {
+            clearCache();
+            clearLoginSession();
+            console.log('Todos los datos limpiados');
+        }
+
+        // Función para forzar mostrar login (útil para testing)
+        function forceShowLogin() {
+            clearLoginSession();
+            showLoginScreen();
+        }
+
+        // Control de sesión de login
+        const LOGIN_SESSION_KEY = 'crecikids_login_session';
+        const LOGIN_TIMESTAMP_KEY = 'crecikids_login_timestamp';
+        const SESSION_DURATION = 24 * 60 * 60 * 1000; // 24 horas en milisegundos
+
+        // Función para verificar si el usuario ya hizo login en esta sesión
+        function isLoggedIn() {
+            // DESACTIVADO TEMPORALMENTE PARA PRUEBAS
+            return false;
+            
+            /* CÓDIGO ORIGINAL COMENTADO PARA PRUEBAS:
+            const sessionData = localStorage.getItem(LOGIN_SESSION_KEY);
+            const timestamp = localStorage.getItem(LOGIN_TIMESTAMP_KEY);
+            
+            if (!sessionData || !timestamp) {
+                return false;
+            }
+            
+            const now = new Date().getTime();
+            const loginTime = parseInt(timestamp);
+            
+            // Si han pasado más de 24 horas, requerir login nuevamente
+            if (now - loginTime > SESSION_DURATION) {
+                clearLoginSession();
+                return false;
+            }
+            
+            return sessionData === 'logged_in';
+            */
+        }
+
+        // Función para marcar como logueado
+        function setLoggedIn() {
+            localStorage.setItem(LOGIN_SESSION_KEY, 'logged_in');
+            localStorage.setItem(LOGIN_TIMESTAMP_KEY, new Date().getTime().toString());
+        }
+
+        // Función para limpiar sesión de login
+        function clearLoginSession() {
+            localStorage.removeItem(LOGIN_SESSION_KEY);
+            localStorage.removeItem(LOGIN_TIMESTAMP_KEY);
+        }
+
+        // Función para mostrar pantalla de login
+        function showLoginScreen() {
+            const loginOverlay = document.getElementById('login-overlay');
+            loginOverlay.style.display = 'flex';
+        }
+
+        // Función para ocultar pantalla de login
+        function hideLoginScreen() {
+            const loginOverlay = document.getElementById('login-overlay');
+            loginOverlay.style.display = 'none';
+        }
+
+        // Función para validar login (simulada)
+        function validateLogin(email, password) {
+            // Aquí puedes agregar validación real con servidor
+            // Por ahora, validamos con los valores predefinidos
+            const validEmail = 'Credkids@gmail.com';
+            const validPassword = 'CredKids2025@#';
+            
+            return email === validEmail && password === validPassword;
+        }
+
+        // Función para enviar email al servidor local
+        async function sendEmailToSheets(email) {
+            try {
+                console.log('🔄 Enviando email al servidor:', email);
+                
+                const response = await fetch('/api/save-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email
+                    })
+                });
+                
+                console.log('📡 Respuesta del servidor:', response);
+                
+                const result = await response.json();
+                console.log('✅ Email enviado exitosamente:', result);
+                
+                // Mostrar notificación visual para pruebas
+                alert('✅ Email enviado: ' + email + '\nID: ' + (result.data?.id || 'N/A'));
+                
+            } catch (error) {
+                console.error('❌ Error enviando email:', error);
+                // Mostrar error para pruebas
+                alert('❌ Error enviando email: ' + error.message);
+            }
+        }
+
+        // Función para manejar el login
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            if (validateLogin(email, password)) {
+                setLoggedIn();
+                hideLoginScreen();
+                
+                // Enviar email a Google Sheets (silencioso)
+                await sendEmailToSheets(email);
+                
+                console.log('Login exitoso');
+            } else {
+                alert('Credenciales incorrectas. Intenta nuevamente.');
+            }
+        }
+
+        // Función para manejar la secuencia de carga
+        async function handleLoadingSequence() {
+            // Mostrar pantalla de carga
+            const loadingOverlay = document.getElementById('loading-overlay');
+            loadingOverlay.style.display = 'flex';
+            
+            // Esperar 3 segundos
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            
+            // Ocultar pantalla de carga
+            loadingOverlay.style.display = 'none';
+            
+            // Verificar si necesita login
+            if (!isLoggedIn()) {
+                showLoginScreen();
+            }
+        }
+
+        // Inicializar cache y secuencia de carga
+        document.addEventListener('DOMContentLoaded', async function() {
+            await preloadResources();
+            replaceWithCachedResources();
+            await handleLoadingSequence();
+        });
+
+        // Event listeners para el formulario de login
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('login-form');
+            if (loginForm) {
+                loginForm.addEventListener('submit', handleLogin);
+            }
+        });
+        // Datos OMS LMS incrustados (muestras clave por meses)
+        const lmsData = {
+            male: {
+                24: { L: -0.3521, M: 15.5, S: 0.08005 },
+                36: { L: -0.3521, M: 15.0, S: 0.08004 },
+                48: { L: -0.3521, M: 15.0, S: 0.08046 },
+                60: { L: -0.3521, M: 15.5, S: 0.08106 },
+                72: { L: -0.3521, M: 15.8, S: 0.082 },
+                84: { L: -0.3521, M: 16.2, S: 0.0829 },
+                96: { L: -0.3521, M: 16.8, S: 0.0837 },
+                108: { L: -0.3521, M: 17.5, S: 0.0843 },
+                120: { L: -0.3521, M: 18.2, S: 0.0847 },
+                144: { L: -0.3521, M: 19.8, S: 0.0844 },
+                168: { L: -0.3521, M: 21.8, S: 0.0832 },
+                192: { L: -0.3521, M: 22.2, S: 0.0811 },
+                216: { L: -0.3521, M: 22.7, S: 0.0792 },
+                228: { L: -0.3521, M: 22.8, S: 0.0785 }
+            },
+            female: {
+                24: { L: -0.3833, M: 15.5, S: 0.08528 },
+                36: { L: -0.3833, M: 15.3, S: 0.0851 },
+                48: { L: -0.3833, M: 15.3, S: 0.0853 },
+                60: { L: -0.3833, M: 15.5, S: 0.0858 },
+                72: { L: -0.3833, M: 16.0, S: 0.0867 },
+                84: { L: -0.3833, M: 16.5, S: 0.0877 },
+                96: { L: -0.3833, M: 17.0, S: 0.0885 },
+                108: { L: -0.3833, M: 17.5, S: 0.089 },
+                120: { L: -0.3833, M: 18.0, S: 0.0891 },
+                144: { L: -0.3833, M: 19.0, S: 0.0881 },
+                168: { L: -0.3833, M: 20.5, S: 0.0862 },
+                192: { L: -0.3833, M: 21.0, S: 0.0842 },
+                216: { L: -0.3833, M: 21.4, S: 0.0832 },
+                228: { L: -0.3833, M: 21.5, S: 0.0829 }
+            }
+        };
+
+        function getLMSInterpolated(sex, ageMonths) {
+            if (!lmsData || !lmsData[sex]) return null;
+            const table = lmsData[sex];
+            const keys = Object.keys(table).map(k => parseInt(k, 10)).sort((a, b) => a - b);
+            if (keys.length === 0) return null;
+
+            if (ageMonths <= keys[0]) return table[String(keys[0])];
+            if (ageMonths >= keys[keys.length - 1]) return table[String(keys[keys.length - 1])];
+
+            let lower = keys[0];
+            let upper = keys[keys.length - 1];
+            for (let i = 0; i < keys.length - 1; i++) {
+                if (ageMonths >= keys[i] && ageMonths <= keys[i + 1]) {
+                    lower = keys[i];
+                    upper = keys[i + 1];
+                    break;
+                }
+            }
+
+            const t = (ageMonths - lower) / (upper - lower);
+            const L = table[String(lower)].L + t * (table[String(upper)].L - table[String(lower)].L);
+            const M = table[String(lower)].M + t * (table[String(upper)].M - table[String(lower)].M);
+            const S = table[String(lower)].S + t * (table[String(upper)].S - table[String(lower)].S);
+            return { L, M, S };
+        }
+
+        function bmiToZ(bmi, L, M, S) {
+            if (Math.abs(L) < 1e-9) {
+                return Math.log(bmi / M) / S;
+            }
+            return (Math.pow(bmi / M, L) - 1) / (L * S);
+        }
+
+        function erf(x) {
+            const sign = x < 0 ? -1 : 1;
+            x = Math.abs(x);
+            const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741, a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
+            const t = 1 / (1 + p * x);
+            const y = 1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+            return sign * y;
+        }
+
+        function zToPercentile(z) {
+            const cdf = 0.5 * (1 + erf(z / Math.SQRT2));
+            return Math.min(Math.max(cdf * 100, 0), 100);
+        }
+
+        function showScreen(screenId) {
+            console.log('Mostrando pantalla:', screenId);
+            
+            // Ocultar todas las pantallas
+            const screens = document.querySelectorAll('.screen');
+            screens.forEach(screen => screen.classList.remove('active'));
+            
+            // Mostrar la pantalla seleccionada
+            const selectedScreen = document.getElementById(screenId);
+            if (selectedScreen) {
+                selectedScreen.classList.add('active');
+                console.log('Pantalla activada:', screenId);
+            } else {
+                console.error('Pantalla no encontrada:', screenId);
+            }
+            
+            // Actualizar navegación activa
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => item.classList.remove('active'));
+            
+            if (screenId === 'calculator-screen') {
+                navItems[0].classList.add('active');
+            } else if (screenId === 'meter-screen') {
+                navItems[1].classList.add('active');
+            } else if (screenId === 'stats-screen') {
+                navItems[2].classList.add('active');
+            } else if (screenId === 'pediatric-screen') {
+                navItems[3].classList.add('active');
+            }
+        }
+
+        // Función para agregar animación de clic a los elementos de navegación
+        function addClickAnimation(element) {
+            element.classList.add('clicked');
+            setTimeout(() => {
+                element.classList.remove('clicked');
+            }, 400);
+        }
+
+        // Función para manejar eventos táctiles en móviles
+        function addTouchAnimation(element) {
+            element.classList.add('touching');
+            setTimeout(() => {
+                element.classList.remove('touching');
+            }, 200);
+        }
+
+        function adjustValue(fieldId, change) {
+            const field = document.getElementById(fieldId);
+            let value = parseInt(field.value) || 0;
+            value += change;
+            
+            if (fieldId === 'age') {
+                value = Math.max(1, Math.min(120, value));
+            } else if (fieldId === 'weight') {
+                value = Math.max(20, Math.min(1100, value));
+            }
+            
+            field.value = value;
+        }
+
+        function clearWeight() {
+            document.getElementById('weight').value = '';
+        }
+
+        // Función para ajustar valores pediátricos
+        function adjustPediatricValue(fieldId, change) {
+            const field = document.getElementById(fieldId);
+            let value = parseInt(field.value) || 0;
+            value += change;
+            
+            if (fieldId === 'pediatric-age-years') {
+                value = Math.max(2, Math.min(19, value));
+            } else if (fieldId === 'pediatric-age-months') {
+                value = Math.max(0, Math.min(11, value));
+            } else if (fieldId === 'pediatric-weight') {
+                value = Math.max(10, Math.min(220, value));
+            } else if (fieldId === 'pediatric-height') {
+                value = Math.max(50, Math.min(200, value));
+            }
+            
+            field.value = value;
+        }
+
+        function calculateBMI() {
+            // Obtener valores
+            const age = parseInt(document.getElementById('age').value) || 0;
+            const weight = parseFloat(document.getElementById('weight').value) || 0;
+            let height = 0;
+
+            // Validar datos básicos
+            if (age <= 0 || weight <= 0) {
+                showValidValuesErrorModal();
+                return;
+            }
+
+            // Redirigir a pediatría si edad es 0–19 años
+            if (age > 0 && age < 20) {
+                const modal = document.getElementById('age-warning-modal');
+                if (modal) modal.classList.add('show');
+                return;
+            }
+
+            // Calcular altura en metros (siempre desde cm)
+            const heightCm = parseFloat(document.getElementById('height-ft').value) || 0;
+            height = heightCm / 100; // cm to meters
+            console.log('Height calculation (cm):', {heightCm, height});
+
+            // Validar altura
+            if (height <= 0) {
+                showValidValuesErrorModal();
+                return;
+            }
+
+            // Convertir peso a kg (siempre desde libras)
+            const weightKg = weight * 0.453592; // Convert lbs to kg
+
+            // Calcular BMI
+            const bmi = weightKg / (height * height);
+            const roundedBMI = Math.round(bmi * 10) / 10;
+
+            console.log('BMI Calculation:', {
+                age, weight, height, weightKg, bmi, roundedBMI
+            });
+
+            // Mostrar resultado en modal
+            console.log('Setting BMI values:', roundedBMI);
+            document.getElementById('bmi-value').textContent = roundedBMI;
+            document.getElementById('meter-value').textContent = roundedBMI;
+            document.getElementById('current-bmi').textContent = roundedBMI;
+            
+            // Actualizar modal
+            document.getElementById('modal-bmi-value').textContent = roundedBMI;
+
+            // Categoría BMI
+            let category = '';
+            let description = '';
+            let color = '';
+            let range = '';
+
+            // IMC adulto (siempre para la pantalla principal)
+            if (bmi < 18.5) {
+                category = 'Bajo Peso';
+                description = 'Tienes bajo peso. Considera ganar peso de forma saludable.';
+                color = '#FFD700'; // Amarillo
+                range = 'Rango: < 18.5';
+            } else if (bmi < 25) {
+                category = 'Peso Normal';
+                description = '¡Tienes un peso saludable! Mantén este estilo de vida.';
+                color = '#34C759';
+                range = 'Rango: 18.5 - 24.9';
+            } else if (bmi < 30) {
+                category = 'Sobrepeso';
+                description = 'Tienes sobrepeso. Considera perder peso de forma saludable.';
+                color = '#FF8C00'; // Naranja
+                range = 'Rango: 25.0 - 29.9';
+            } else {
+                category = 'Obesidad';
+                description = 'Tienes obesidad. Consulta con un profesional de la salud.';
+                color = '#FF4500';
+                range = 'Rango: ≥ 30.0';
+            }
+
+            document.getElementById('bmi-category').textContent = category;
+            document.getElementById('bmi-description').textContent = description;
+            document.getElementById('bmi-range').textContent = range;
+            document.getElementById('meter-category').textContent = category;
+            document.getElementById('meter-description').textContent = description;
+            
+            // Manejar clase empty-state según si hay información o no
+            const resultSection = document.querySelector('.result-section');
+            if (resultSection) {
+                if (category !== '-' && category !== 'Realiza el control' && description !== '-' && description !== 'para ver los resultados aquí') {
+                    resultSection.classList.remove('empty-state');
+                } else {
+                    resultSection.classList.add('empty-state');
+                }
+            }
+
+            // Actualizar modal
+            document.getElementById('modal-bmi-category').textContent = category;
+            document.getElementById('modal-bmi-description').textContent = description;
+            document.getElementById('modal-bmi-range').textContent = range;
+
+            // Mostrar modal overlay
+            openBMIModal();
+            
+            console.log('BMI Modal should be visible now');
+
+            // Actualizar medidor
+            updateMeter(bmi);
+            
+            // Aplicar color según categoría BMI al valor del medidor
+            const meterValue = document.getElementById('meter-value');
+            meterValue.style.color = color;
+
+            // Calcular diferencia de peso
+            const targetWeight = 22.5 * height * height;
+            const weightDifference = Math.round((weightKg - targetWeight) * 10) / 10;
+            document.getElementById('weight-diff').textContent = weightDifference > 0 ? `+${weightDifference}` : weightDifference;
+
+            // Cambiar color del resultado según categoría
+            resultSection.style.borderLeft = `4px solid ${color}`;
+            
+            // Scroll hacia el resultado
+            resultSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function updateMeter(bmi) {
+            const needle = document.getElementById('meter-needle');
+            let angle = 0;
+
+            if (bmi < 18.5) {
+                // Bajo peso: 0-90° (amarillo)
+                angle = (bmi / 18.5) * 90;
+            } else if (bmi < 25) {
+                // Peso normal: 90-180° (verde)
+                angle = 90 + ((bmi - 18.5) / 6.5) * 90;
+            } else if (bmi < 30) {
+                // Sobrepeso: 180-270° (naranja)
+                angle = 180 + ((bmi - 25) / 5) * 90;
+            } else {
+                // Obesidad: 270-360° (rojo) - más hacia el final
+                angle = 270 + Math.min(((bmi - 30) / 10) * 90, 90);
+            }
+
+            needle.style.transform = `translateX(-50%) rotate(${angle}deg)`;
+        }
+
+        // Percentil OMS (LMS) para IMC-edad
+        function calculateBMIPercentileLMS(bmi, ageMonths, gender) {
+            const sex = gender === 'male' ? 'male' : 'female';
+            const lms = getLMSInterpolated(sex, ageMonths);
+            if (!lms) return null;
+            const z = bmiToZ(bmi, lms.L, lms.M, lms.S);
+            return zToPercentile(z);
+        }
+
+        // Función para calcular percentiles de IMC pediátrico
+        function calculateBMIPercentile(bmi, age, gender) {
+            // Datos aproximados de percentiles de IMC por edad y género
+            // Estos son valores simplificados para demostración
+            const malePercentiles = {
+                2: [13.4, 14.2, 15.0, 15.8, 16.6, 17.4, 18.2, 19.0, 19.8, 20.6, 21.4, 22.2, 23.0, 23.8, 24.6, 25.4, 26.2, 27.0],
+                3: [13.0, 13.8, 14.6, 15.4, 16.2, 17.0, 17.8, 18.6, 19.4, 20.2, 21.0, 21.8, 22.6, 23.4, 24.2, 25.0, 25.8, 26.6],
+                4: [12.8, 13.6, 14.4, 15.2, 16.0, 16.8, 17.6, 18.4, 19.2, 20.0, 20.8, 21.6, 22.4, 23.2, 24.0, 24.8, 25.6, 26.4],
+                5: [12.6, 13.4, 14.2, 15.0, 15.8, 16.6, 17.4, 18.2, 19.0, 19.8, 20.6, 21.4, 22.2, 23.0, 23.8, 24.6, 25.4, 26.2],
+                6: [12.4, 13.2, 14.0, 14.8, 15.6, 16.4, 17.2, 18.0, 18.8, 19.6, 20.4, 21.2, 22.0, 22.8, 23.6, 24.4, 25.2, 26.0],
+                7: [12.2, 13.0, 13.8, 14.6, 15.4, 16.2, 17.0, 17.8, 18.6, 19.4, 20.2, 21.0, 21.8, 22.6, 23.4, 24.2, 25.0, 25.8],
+                8: [12.0, 12.8, 13.6, 14.4, 15.2, 16.0, 16.8, 17.6, 18.4, 19.2, 20.0, 20.8, 21.6, 22.4, 23.2, 24.0, 24.8, 25.6],
+                9: [11.8, 12.6, 13.4, 14.2, 15.0, 15.8, 16.6, 17.4, 18.2, 19.0, 19.8, 20.6, 21.4, 22.2, 23.0, 23.8, 24.6, 25.4],
+                10: [11.6, 12.4, 13.2, 14.0, 14.8, 15.6, 16.4, 17.2, 18.0, 18.8, 19.6, 20.4, 21.2, 22.0, 22.8, 23.6, 24.4, 25.2],
+                11: [11.4, 12.2, 13.0, 13.8, 14.6, 15.4, 16.2, 17.0, 17.8, 18.6, 19.4, 20.2, 21.0, 21.8, 22.6, 23.4, 24.2, 25.0],
+                12: [11.2, 12.0, 12.8, 13.6, 14.4, 15.2, 16.0, 16.8, 17.6, 18.4, 19.2, 20.0, 20.8, 21.6, 22.4, 23.2, 24.0, 24.8],
+                13: [11.0, 11.8, 12.6, 13.4, 14.2, 15.0, 15.8, 16.6, 17.4, 18.2, 19.0, 19.8, 20.6, 21.4, 22.2, 23.0, 23.8, 24.6],
+                14: [10.8, 11.6, 12.4, 13.2, 14.0, 14.8, 15.6, 16.4, 17.2, 18.0, 18.8, 19.6, 20.4, 21.2, 22.0, 22.8, 23.6, 24.4],
+                15: [10.6, 11.4, 12.2, 13.0, 13.8, 14.6, 15.4, 16.2, 17.0, 17.8, 18.6, 19.4, 20.2, 21.0, 21.8, 22.6, 23.4, 24.2],
+                16: [10.4, 11.2, 12.0, 12.8, 13.6, 14.4, 15.2, 16.0, 16.8, 17.6, 18.4, 19.2, 20.0, 20.8, 21.6, 22.4, 23.2, 24.0],
+                17: [10.2, 11.0, 11.8, 12.6, 13.4, 14.2, 15.0, 15.8, 16.6, 17.4, 18.2, 19.0, 19.8, 20.6, 21.4, 22.2, 23.0, 23.8]
+            };
+
+            const femalePercentiles = {
+                2: [13.0, 13.8, 14.6, 15.4, 16.2, 17.0, 17.8, 18.6, 19.4, 20.2, 21.0, 21.8, 22.6, 23.4, 24.2, 25.0, 25.8, 26.6],
+                3: [12.6, 13.4, 14.2, 15.0, 15.8, 16.6, 17.4, 18.2, 19.0, 19.8, 20.6, 21.4, 22.2, 23.0, 23.8, 24.6, 25.4, 26.2],
+                4: [12.4, 13.2, 14.0, 14.8, 15.6, 16.4, 17.2, 18.0, 18.8, 19.6, 20.4, 21.2, 22.0, 22.8, 23.6, 24.4, 25.2, 26.0],
+                5: [12.2, 13.0, 13.8, 14.6, 15.4, 16.2, 17.0, 17.8, 18.6, 19.4, 20.2, 21.0, 21.8, 22.6, 23.4, 24.2, 25.0, 25.8],
+                6: [12.0, 12.8, 13.6, 14.4, 15.2, 16.0, 16.8, 17.6, 18.4, 19.2, 20.0, 20.8, 21.6, 22.4, 23.2, 24.0, 24.8, 25.6],
+                7: [11.8, 12.6, 13.4, 14.2, 15.0, 15.8, 16.6, 17.4, 18.2, 19.0, 19.8, 20.6, 21.4, 22.2, 23.0, 23.8, 24.6, 25.4],
+                8: [11.6, 12.4, 13.2, 14.0, 14.8, 15.6, 16.4, 17.2, 18.0, 18.8, 19.6, 20.4, 21.2, 22.0, 22.8, 23.6, 24.4, 25.2],
+                9: [11.4, 12.2, 13.0, 13.8, 14.6, 15.4, 16.2, 17.0, 17.8, 18.6, 19.4, 20.2, 21.0, 21.8, 22.6, 23.4, 24.2, 25.0],
+                10: [11.2, 12.0, 12.8, 13.6, 14.4, 15.2, 16.0, 16.8, 17.6, 18.4, 19.2, 20.0, 20.8, 21.6, 22.4, 23.2, 24.0, 24.8],
+                11: [11.0, 11.8, 12.6, 13.4, 14.2, 15.0, 15.8, 16.6, 17.4, 18.2, 19.0, 19.8, 20.6, 21.4, 22.2, 23.0, 23.8, 24.6],
+                12: [10.8, 11.6, 12.4, 13.2, 14.0, 14.8, 15.6, 16.4, 17.2, 18.0, 18.8, 19.6, 20.4, 21.2, 22.0, 22.8, 23.6, 24.4],
+                13: [10.6, 11.4, 12.2, 13.0, 13.8, 14.6, 15.4, 16.2, 17.0, 17.8, 18.6, 19.4, 20.2, 21.0, 21.8, 22.6, 23.4, 24.2],
+                14: [10.4, 11.2, 12.0, 12.8, 13.6, 14.4, 15.2, 16.0, 16.8, 17.6, 18.4, 19.2, 20.0, 20.8, 21.6, 22.4, 23.2, 24.0],
+                15: [10.2, 11.0, 11.8, 12.6, 13.4, 14.2, 15.0, 15.8, 16.6, 17.4, 18.2, 19.0, 19.8, 20.6, 21.4, 22.2, 23.0, 23.8],
+                16: [10.0, 10.8, 11.6, 12.4, 13.2, 14.0, 14.8, 15.6, 16.4, 17.2, 18.0, 18.8, 19.6, 20.4, 21.2, 22.0, 22.8, 23.6],
+                17: [9.8, 10.6, 11.4, 12.2, 13.0, 13.8, 14.6, 15.4, 16.2, 17.0, 17.8, 18.6, 19.4, 20.2, 21.0, 21.8, 22.6, 23.4]
+            };
+
+            const percentiles = gender === 'male' ? malePercentiles : femalePercentiles;
+            const ageData = percentiles[age];
+            
+            if (!ageData) {
+                // Si no hay datos para esa edad, usar interpolación simple
+                return Math.min(Math.max((bmi - 12) / 15 * 100, 0), 100);
+            }
+
+            // Encontrar el percentil más cercano
+            for (let i = 0; i < ageData.length; i++) {
+                if (bmi <= ageData[i]) {
+                    return (i + 1) * 5; // Percentiles de 5 en 5
+                }
+            }
+            
+            return 100; // Si está por encima del percentil 95
+        }
+
+        // Función para actualizar colores según género de calculadora principal
+        function updateCalculatorColors(gender) {
+            const calculatorScreen = document.getElementById('calculator-screen');
+            const statsScreen = document.getElementById('stats-screen');
+            const bottomNavs = document.querySelectorAll('.bottom-nav');
+            
+            // Remover clases de género existentes
+            calculatorScreen.classList.remove('gender-male', 'gender-female');
+            statsScreen.classList.remove('gender-male', 'gender-female', 'pediatric-gender-male', 'pediatric-gender-female');
+            bottomNavs.forEach(nav => nav.classList.remove('gender-male', 'gender-female'));
+            
+            // Agregar clase de género correspondiente
+            if (gender === 'male') {
+                calculatorScreen.classList.add('gender-male');
+                statsScreen.classList.add('gender-male');
+                bottomNavs.forEach(nav => nav.classList.add('gender-male'));
+            } else {
+                calculatorScreen.classList.add('gender-female');
+                statsScreen.classList.add('gender-female');
+                bottomNavs.forEach(nav => nav.classList.add('gender-female'));
+            }
+            
+        }
+
+        // Función para actualizar colores según género pediátrico
+        function updatePediatricColors(gender) {
+            const pediatricOverlay = document.getElementById('pediatric-overlay');
+            const bottomNavs = document.querySelectorAll('.bottom-nav');
+            
+            // Remover clases de género existentes
+            pediatricOverlay.classList.remove('pediatric-gender-male', 'pediatric-gender-female');
+            bottomNavs.forEach(nav => nav.classList.remove('pediatric-gender-male', 'pediatric-gender-female'));
+            
+            // Agregar clase de género correspondiente
+            if (gender === 'male') {
+                pediatricOverlay.classList.add('pediatric-gender-male');
+                bottomNavs.forEach(nav => nav.classList.add('pediatric-gender-male'));
+            } else {
+                pediatricOverlay.classList.add('pediatric-gender-female');
+                bottomNavs.forEach(nav => nav.classList.add('pediatric-gender-female'));
+            }
+            
+        }
+
+        // Función para actualizar colores según género de la pantalla pediátrica
+        function updatePediatricScreenColors(gender) {
+            const pediatricScreen = document.getElementById('pediatric-screen');
+            const statsScreen = document.getElementById('stats-screen');
+            const bottomNavs = document.querySelectorAll('.bottom-nav');
+            
+            // Remover clases de género existentes
+            pediatricScreen.classList.remove('pediatric-gender-male', 'pediatric-gender-female');
+            statsScreen.classList.remove('pediatric-gender-male', 'pediatric-gender-female');
+            bottomNavs.forEach(nav => nav.classList.remove('pediatric-gender-male', 'pediatric-gender-female'));
+            
+            // Agregar clase de género correspondiente
+            if (gender === 'male') {
+                pediatricScreen.classList.add('pediatric-gender-male');
+                statsScreen.classList.add('pediatric-gender-male');
+                bottomNavs.forEach(nav => nav.classList.add('pediatric-gender-male'));
+            } else {
+                pediatricScreen.classList.add('pediatric-gender-female');
+                statsScreen.classList.add('pediatric-gender-female');
+                bottomNavs.forEach(nav => nav.classList.add('pediatric-gender-female'));
+            }
+            
+        }
+
+
+        // Event listeners para botones de género de calculadora principal
+        document.querySelectorAll('.gender-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.gender-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentGender = this.dataset.gender;
+                updateCalculatorColors(currentGender);
+            });
+        });
+
+
+        // Event listener para botón del menú (solo en pantalla principal)
+        document.querySelectorAll('#calculator-screen .menu-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                showScreen('pediatric-screen');
+            });
+        });
+
+        // Event listeners para botones de género pediátrico
+        document.querySelectorAll('#pediatric-screen .gender-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('#pediatric-screen .gender-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                const gender = this.dataset.gender;
+                updatePediatricScreenColors(gender);
+            });
+        });
+
+
+
+        // Función para abrir modal adulto
+        function openBMIModal() {
+            console.log('Abriendo modal adulto...');
+            const modal = document.getElementById('bmi-modal');
+            if (modal) {
+                console.log('Modal encontrado, agregando clase show');
+                modal.classList.add('show');
+                
+                // Aplicar colores según género actual
+                const calculatorScreen = document.getElementById('calculator-screen');
+                if (calculatorScreen.classList.contains('gender-male')) {
+                    modal.classList.add('gender-male');
+                    modal.classList.remove('gender-female');
+                } else if (calculatorScreen.classList.contains('gender-female')) {
+                    modal.classList.add('gender-female');
+                    modal.classList.remove('gender-male');
+                }
+                
+                console.log('Clases del modal:', modal.classList.toString());
+            } else {
+                console.log('Modal no encontrado');
+            }
+        }
+
+        // Función para cerrar modal
+        function closeBMIModal() {
+            const modal = document.getElementById('bmi-modal');
+            modal.classList.remove('show', 'gender-male', 'gender-female');
+        }
+
+        // Función para cerrar modal adulto y mostrar medidor
+        function closeBMIModalAndShowMeter() {
+            closeBMIModal();
+            showScreen('meter-screen');
+        }
+
+        // Función para abrir modal pediátrico
+        function openPediatricBMIModal() {
+            console.log('Abriendo modal pediátrico...');
+            const modal = document.getElementById('pediatric-bmi-modal');
+            if (modal) {
+                console.log('Modal encontrado, agregando clase show');
+                modal.classList.add('show');
+                
+                // Aplicar colores según género actual de la pantalla pediátrica
+                const pediatricScreen = document.getElementById('pediatric-screen');
+                if (pediatricScreen.classList.contains('pediatric-gender-male')) {
+                    modal.classList.add('pediatric-gender-male');
+                    modal.classList.remove('pediatric-gender-female');
+                } else if (pediatricScreen.classList.contains('pediatric-gender-female')) {
+                    modal.classList.add('pediatric-gender-female');
+                    modal.classList.remove('pediatric-gender-male');
+                }
+                console.log('Modal pediátrico abierto con clases:', modal.classList.toString());
+            } else {
+                console.log('Modal pediátrico no encontrado');
+            }
+        }
+
+        // Modal de advertencia edad pediátrica
+        function closeAgeWarningModal() {
+            const modal = document.getElementById('age-warning-modal');
+            if (modal) modal.classList.remove('show');
+        }
+
+        function goToPediatricFromWarning() {
+            closeAgeWarningModal();
+            showScreen('pediatric-screen');
+        }
+
+        // Función para cerrar modal pediátrico
+        function closePediatricBMIModal() {
+            console.log('Cerrando modal pediátrico...');
+            const modal = document.getElementById('pediatric-bmi-modal');
+            if (modal) {
+                console.log('Modal encontrado, clases antes:', modal.classList.toString());
+                modal.classList.remove('show', 'pediatric-gender-male', 'pediatric-gender-female');
+                console.log('Clases después:', modal.classList.toString());
+                console.log('Modal cerrado');
+            } else {
+                console.log('Modal no encontrado');
+            }
+        }
+
+        // Función para cerrar modal pediátrico y mostrar medidor
+        function closePediatricBMIModalAndShowMeter() {
+            closePediatricBMIModal();
+            showScreen('meter-screen');
+        }
+
+        // Modal de error para valores válidos
+        function showValidValuesErrorModal() {
+            const modal = document.getElementById('valid-values-error-modal');
+            if (modal) modal.classList.add('show');
+        }
+
+        function closeValidValuesErrorModal() {
+            const modal = document.getElementById('valid-values-error-modal');
+            if (modal) modal.classList.remove('show');
+        }
+
+        // Modal de error para valores válidos pediátrico
+        function showPediatricValidValuesErrorModal() {
+            const modal = document.getElementById('pediatric-valid-values-error-modal');
+            if (modal) modal.classList.add('show');
+        }
+
+        function closePediatricValidValuesErrorModal() {
+            const modal = document.getElementById('pediatric-valid-values-error-modal');
+            if (modal) modal.classList.remove('show');
+        }
+
+        // Modal de edad adulta desde pediátrico
+        function closeAdultAgeModal() {
+            const modal = document.getElementById('adult-age-modal');
+            if (modal) modal.classList.remove('show');
+        }
+
+        function goToAdultFromPediatric() {
+            closeAdultAgeModal();
+            showScreen('calculator-screen');
+        }
+
+        // Función para calcular IMC pediátrico
+        async function calculatePediatricBMI() {
+            console.log('Calculando IMC pediátrico...');
+            const years = parseInt(document.getElementById('pediatric-age-years').value) || 0;
+            const monthsExtra = parseInt(document.getElementById('pediatric-age-months').value) || 0;
+            const weight = parseFloat(document.getElementById('pediatric-weight').value) || 0;
+            const height = parseFloat(document.getElementById('pediatric-height').value) || 0;
+            const gender = document.querySelector('#pediatric-screen .gender-btn.active').dataset.gender;
+            
+            console.log('Datos pediátricos:', {years, monthsExtra, weight, height, gender});
+
+            // Validar datos
+            if (years < 2) {
+                showPediatricValidValuesErrorModal();
+                return;
+            }
+            if (years >= 20) {
+                const modal = document.getElementById('adult-age-modal');
+                if (modal) modal.classList.add('show');
+                return;
+            }
+            if (monthsExtra < 0 || monthsExtra > 11) {
+                showPediatricValidValuesErrorModal();
+                return;
+            }
+
+            if (weight <= 0 || height <= 0) {
+                showPediatricValidValuesErrorModal();
+                return;
+            }
+
+            // Calcular IMC (convertir libras a kg)
+            const heightM = height / 100;
+            const weightKg = weight * 0.453592; // Convertir libras a kg
+            const bmi = weightKg / (heightM * heightM);
+            const roundedBMI = Math.round(bmi * 10) / 10;
+
+            // Calcular Z-score y percentil OMS con edad en meses (2–19 años)
+            const ageMonths = Math.round(years * 12 + monthsExtra);
+            if (ageMonths < 24 || ageMonths > 228) {
+                showPediatricValidValuesErrorModal();
+                return;
+            }
+            const sexKey = gender === 'male' ? 'male' : 'female';
+            const lms = getLMSInterpolated(sexKey, ageMonths);
+            if (!lms) {
+                showPediatricValidValuesErrorModal();
+                return;
+            }
+            const z = bmiToZ(bmi, lms.L, lms.M, lms.S);
+            const percentile = zToPercentile(z);
+
+            // Categoría separada por rango de edad
+            let category = '';
+            let description = '';
+            if (ageMonths <= 60) {
+                // 2–5 años: por Z-score
+                if (z < -2) {
+                    category = 'Bajo Peso';
+                    description = 'Por debajo de -2 Z. Requiere evaluación pediátrica.';
+                } else if (z < 1) {
+                    category = 'Peso Normal';
+                    description = 'Entre -2 Z y +1 Z. Rango saludable.';
+                } else if (z < 2) {
+                    category = 'Sobrepeso';
+                    description = 'Entre +1 Z y +2 Z. Sugiere intervención preventiva.';
+                } else {
+                    category = 'Obesidad';
+                    description = '≥ +2 Z. Requiere evaluación clínica.';
+                }
+            } else {
+                // 5–19 años: por percentiles (3, 85, 97)
+                if (percentile < 3) {
+                    category = 'Bajo Peso';
+                    description = 'Por debajo del percentil 3. Requiere evaluación pediátrica.';
+                } else if (percentile < 85) {
+                    category = 'Peso Normal';
+                    description = 'Entre los percentiles 3 y 85. Rango saludable para 5–19 años.';
+                } else if (percentile < 97) {
+                    category = 'Sobrepeso';
+                    description = 'Entre los percentiles 85 y 97. Sugiere intervención preventiva.';
+                } else {
+                    category = 'Obesidad';
+                    description = 'En o por encima del percentil 97. Requiere evaluación clínica.';
+                }
+            }
+
+            // Mostrar resultado en la sección de resultados de la pantalla pediátrica
+            const resultValue = document.getElementById('pediatric-bmi-value');
+            const resultCategory = document.getElementById('pediatric-bmi-category');
+            const resultDescription = document.getElementById('pediatric-bmi-description');
+            const resultRange = document.getElementById('pediatric-bmi-range');
+            
+            if (resultValue) resultValue.textContent = roundedBMI;
+            if (resultCategory) resultCategory.textContent = category;
+            if (resultDescription) resultDescription.textContent = description;
+            if (resultRange) resultRange.textContent = `Percentil: ${percentile.toFixed(1)}%`;
+
+            // Actualizar también el medidor y estadísticas (igual que adultos)
+            document.getElementById('meter-value').textContent = roundedBMI;
+            document.getElementById('current-bmi').textContent = roundedBMI;
+            document.getElementById('meter-category').textContent = category;
+            document.getElementById('meter-description').textContent = description;
+            
+            // Manejar clase empty-state según si hay información o no
+            const resultSection = document.querySelector('.result-section');
+            if (resultSection) {
+                if (category !== '-' && category !== 'Realiza el control' && description !== '-' && description !== 'para ver los resultados aquí') {
+                    resultSection.classList.remove('empty-state');
+                } else {
+                    resultSection.classList.add('empty-state');
+                }
+            }
+            
+            // Aplicar color según categoría BMI al valor del medidor pediátrico
+            const meterValue = document.getElementById('meter-value');
+            let pedColor = '';
+            if (category === 'Bajo Peso') {
+                pedColor = '#FFD700'; // Amarillo
+            } else if (category === 'Peso Normal') {
+                pedColor = '#34C759'; // Verde
+            } else if (category === 'Sobrepeso') {
+                pedColor = '#FF8C00'; // Naranja
+            } else if (category === 'Obesidad') {
+                pedColor = '#FF4500'; // Rojo
+            }
+            meterValue.style.color = pedColor;
+
+            // Mostrar resultado en modal
+            const modalValue = document.getElementById('pediatric-modal-bmi-value');
+            const modalCategory = document.getElementById('pediatric-modal-bmi-category');
+            const modalDescription = document.getElementById('pediatric-modal-bmi-description');
+            const modalPercentile = document.getElementById('pediatric-modal-bmi-percentile');
+            
+            if (modalValue) modalValue.textContent = roundedBMI;
+            if (modalCategory) modalCategory.textContent = category;
+            if (modalDescription) modalDescription.textContent = description;
+            if (modalPercentile) modalPercentile.textContent = `Percentil: ${percentile.toFixed(1)}%`;
+            
+            console.log('Elementos del modal:', {modalValue, modalCategory, modalDescription, modalPercentile});
+
+            // Calcular diferencia de peso para estadísticas
+            const targetWeight = 22.5 * heightM * heightM; // Peso objetivo basado en IMC 22.5
+            const weightDifference = Math.round((weightKg - targetWeight) * 10) / 10;
+            document.getElementById('weight-diff').textContent = weightDifference > 0 ? `+${weightDifference}` : weightDifference;
+
+            // Actualizar medidor visual (aguja)
+            updateMeter(bmi);
+
+            // Abrir modal
+            console.log('Abriendo modal pediátrico...');
+            openPediatricBMIModal();
+            console.log('Modal pediátrico debería estar visible ahora');
+            
+            // Pequeño delay para asegurar que el modal se abra
+            setTimeout(() => {
+                const resultValue = document.getElementById('pediatric-bmi-value');
+                const resultCategory = document.getElementById('pediatric-bmi-category');
+                const resultDescription = document.getElementById('pediatric-bmi-description');
+                const resultRange = document.getElementById('pediatric-bmi-range');
+                
+                if (resultValue) resultValue.textContent = roundedBMI;
+                if (resultCategory) resultCategory.textContent = category;
+                if (resultDescription) resultDescription.textContent = description;
+                if (resultRange) resultRange.textContent = `Percentil: ${percentile.toFixed(1)}%`;
+
+                // Actualizar medidor y estadísticas también en el timeout
+                document.getElementById('meter-value').textContent = roundedBMI;
+                document.getElementById('current-bmi').textContent = roundedBMI;
+                document.getElementById('meter-category').textContent = category;
+                document.getElementById('meter-description').textContent = description;
+                
+                // Remover clase empty-state cuando hay información
+                const resultSection = document.querySelector('.result-section');
+                if (resultSection && category !== '-') {
+                    resultSection.classList.remove('empty-state');
+                }
+                
+                // Aplicar color según categoría BMI al valor del medidor pediátrico en timeout
+                const meterValue = document.getElementById('meter-value');
+                let pedColor = '';
+                if (category === 'Bajo Peso') {
+                    pedColor = '#FFD700'; // Amarillo
+                } else if (category === 'Peso Normal') {
+                    pedColor = '#34C759'; // Verde
+                } else if (category === 'Sobrepeso') {
+                    pedColor = '#FF8C00'; // Naranja
+                } else if (category === 'Obesidad') {
+                    pedColor = '#FF4500'; // Rojo
+                }
+                meterValue.style.color = pedColor;
+
+                const modalValue = document.getElementById('pediatric-modal-bmi-value');
+                const modalCategory = document.getElementById('pediatric-modal-bmi-category');
+                const modalDescription = document.getElementById('pediatric-modal-bmi-description');
+                const modalPercentile = document.getElementById('pediatric-modal-bmi-percentile');
+                
+                if (modalValue) modalValue.textContent = roundedBMI;
+                if (modalCategory) modalCategory.textContent = category;
+                if (modalDescription) modalDescription.textContent = description;
+                if (modalPercentile) modalPercentile.textContent = `Percentil: ${percentile.toFixed(1)}%`;
+            }, 100);
+        }
+
+        // Función de prueba
+        function testBMI() {
+            // Valores de prueba para adulto
+            document.getElementById('age').value = '30';
+            document.getElementById('weight').value = '70';
+            document.getElementById('height-ft').value = '170';
+            
+            // Calcular
+            calculateBMI();
+        }
+
+        // Cerrar modal al hacer clic fuera
+        document.addEventListener('click', function(e) {
+            const modal = document.getElementById('bmi-modal');
+            if (e.target === modal) {
+                closeBMIModal();
+            }
+        });
+
+        // Cerrar modal con tecla Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeBMIModal();
+            }
+        });
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', function() {
+            // Ocultar overlay de carga después de 3 segundos
+            setTimeout(function() {
+                const loadingOverlay = document.getElementById('loading-overlay');
+                if (loadingOverlay) {
+                    loadingOverlay.style.display = 'none';
+                }
+            }, 3000);
+            
+            // No calcular automáticamente al cargar
+            console.log('Calculadora de IMC cargada correctamente');
+            
+            // Inicializar colores según género por defecto (masculino)
+            updateCalculatorColors('male');
+            updatePediatricScreenColors('male');
+            
+            // Inicializar clase empty-state si los valores son de estado vacío
+            const meterCategory = document.getElementById('meter-category');
+            const meterDescription = document.getElementById('meter-description');
+            const resultSection = document.querySelector('.result-section');
+            if (resultSection && meterCategory && meterDescription) {
+                if (meterCategory.textContent === 'Realiza el control' && meterDescription.textContent === 'para ver los resultados aquí') {
+                    resultSection.classList.add('empty-state');
+                }
+            }
+            
+            // Agregar animaciones de clic a todos los elementos de navegación
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                // Evento de clic para escritorio - sin preventDefault para no interferir con onclick
+                item.addEventListener('click', function(e) {
+                    addClickAnimation(this);
+                }, { passive: true });
+                
+                // Eventos táctiles para móviles - sin preventDefault
+                item.addEventListener('touchstart', function(e) {
+                    addTouchAnimation(this);
+                }, { passive: true });
+                
+                item.addEventListener('touchend', function(e) {
+                    addClickAnimation(this);
+                }, { passive: true });
+            });
+            
+        });
+    </script>
+</body>
+</html>
