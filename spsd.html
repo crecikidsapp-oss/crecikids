@@ -10,28 +10,68 @@
 <script>
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyVe_ozsdCei4gVV_oltZqhHL-ccjK98GhwDd0tl2u5zt8rXt0aV6xmoJuUPywiahGi/exec";
 
-document.getElementById("form").addEventListener("submit", async (e) => {
+document.getElementById("form").addEventListener("submit", (e) => {
   e.preventDefault();
-  const data = {
-    nombre: document.getElementById("nombre").value,
-    correo: document.getElementById("correo").value,
-    mensaje: document.getElementById("mensaje").value
-  };
+  
+  const nombre = document.getElementById("nombre").value;
+  const correo = document.getElementById("correo").value;
+  const mensaje = document.getElementById("mensaje").value;
 
-  try {
-    const response = await fetch(WEB_APP_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-      mode: "cors"
-    });
+  // Crear formulario oculto para evitar CORS
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = WEB_APP_URL;
+  form.target = 'hiddenFrame';
+  form.style.display = 'none';
 
-    const result = await response.text(); // HtmlService devuelve texto
-    document.getElementById("estado").innerText = result.includes("✅") ? "✅ Enviado correctamente" : "❌ Error al enviar";
+  // Crear inputs ocultos
+  const nombreInput = document.createElement('input');
+  nombreInput.type = 'hidden';
+  nombreInput.name = 'nombre';
+  nombreInput.value = nombre;
 
-  } catch (err) {
-    document.getElementById("estado").innerText = "❌ Error al enviar: " + err.message;
+  const correoInput = document.createElement('input');
+  correoInput.type = 'hidden';
+  correoInput.name = 'correo';
+  correoInput.value = correo;
+
+  const mensajeInput = document.createElement('input');
+  mensajeInput.type = 'hidden';
+  mensajeInput.name = 'mensaje';
+  mensajeInput.value = mensaje;
+
+  // Crear iframe oculto para recibir respuesta
+  let iframe = document.getElementById('hiddenFrame');
+  if (!iframe) {
+    iframe = document.createElement('iframe');
+    iframe.id = 'hiddenFrame';
+    iframe.name = 'hiddenFrame';
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
   }
+
+  // Agregar inputs al formulario
+  form.appendChild(nombreInput);
+  form.appendChild(correoInput);
+  form.appendChild(mensajeInput);
+
+  // Enviar formulario
+  document.body.appendChild(form);
+  form.submit();
+  document.body.removeChild(form);
+
+  // Mostrar mensaje de confirmación
+  document.getElementById("estado").innerText = "✅ Enviando datos...";
+  
+  // Limpiar formulario
+  document.getElementById("nombre").value = "";
+  document.getElementById("correo").value = "";
+  document.getElementById("mensaje").value = "";
+  
+  // Cambiar mensaje después de un momento
+  setTimeout(() => {
+    document.getElementById("estado").innerText = "✅ Datos enviados correctamente";
+  }, 1000);
 });
 </script>
 
