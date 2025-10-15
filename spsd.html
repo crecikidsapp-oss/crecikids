@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Enviar Datos a Google Sheets</title>
+</head>
+<body>
+  <h2>Formulario de prueba</h2>
+  <form id="form">
+    <input type="text" id="nombre" placeholder="Nombre"><br><br>
+    <input type="email" id="correo" placeholder="Correo"><br><br>
+    <textarea id="mensaje" placeholder="Mensaje"></textarea><br><br>
+    <button type="submit">Enviar</button>
+  </form>
+
+  <script>
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwi8EC9dpVNlvO1-wBqsjEEtlcgCezWWSKU2U1wd4t08pHTpFdEacP3-hMHoypdt9mwLg/exec"; // Pega tu URL aquí
+
+    document.getElementById("form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const data = {
+        nombre: document.getElementById("nombre").value,
+        correo: document.getElementById("correo").value,
+        mensaje: document.getElementById("mensaje").value
+      };
+
+      try {
+        const response = await fetch(WEB_APP_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+        alert(result.message);
+      } catch (error) {
+        alert("❌ Error al enviar los datos: " + error.message);
+      }
+    });
+  </script>
+</body>
+</html>
